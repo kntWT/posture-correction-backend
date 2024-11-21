@@ -8,7 +8,7 @@ create table if not exists users (
     password varchar(255) not null,
     email varchar(255) default null,
     neck_to_nose_standard double default null,
-    created_at timestamp default current_timestamp
+    created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp on update current_timestamp
 );
 
@@ -24,7 +24,7 @@ create table if not exists postures (
     neck_to_nose double not null,
     standard_distance double not null,
     neck_angle double not null,
-    created_at timestamp default current_timestamp
-    updated_at timestamp default current_timestamp on update current_timestamp,
+    created_at timestamp(3) default current_timestamp,
+    updated_at timestamp(3) default current_timestamp on update current_timestamp,
     foreign key (user_id) references users(id)
 );
