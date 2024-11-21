@@ -24,6 +24,9 @@ services:
             - driver: nvidia
             - count: 1
             - capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
 
   db:
     build:
