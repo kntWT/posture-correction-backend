@@ -34,7 +34,7 @@ services:
       dockerfile: Dockerfile
     container_name: posture-correction-backend-db
     ports:
-      "3101:3306"
+      - "3101:3306"
     volumes:
       - ./db/data:/var/lib/mysql
     env_file:
