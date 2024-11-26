@@ -2,7 +2,7 @@ version: '3'
 services:
   api:
     build:
-      context: api
+      context: ./api
       dockerfile: Dockerfile
     container_name: posture-correction-backend-api
     ports:
@@ -12,25 +12,25 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
+    # restart: unless-stopped
     env_file:
       - .env
     networks:
       - posture-correction-backend
+    tty: true
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-            - count: 1
-            - capabilities: [gpu]
+              count: 1
+              capabilities: [gpu]
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-    runtime: nvidia
 
   db:
     build:
-      context: db
+      context: ./db
       dockerfile: Dockerfile
     container_name: posture-correction-backend-db
     ports:
@@ -40,13 +40,14 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "mysql", "-u${MARIADB_USER}", "-p${MARIADB_PASSWORD}", "-e", "show databases;", "posture_correction_db"]
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
     networks:
       - posture-correction-backend
+    tty: true
 
 networks:
   posture-correction-backend:

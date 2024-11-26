@@ -1,6 +1,8 @@
-FROM mariadb:latest
+FROM --platform=linux/x86_64 mysql:8.0.35-debian
 
-COPY init/*.sql /docker-entrypoint-initdb.d/
-COPY my.cnf /etc/mysql/conf.d/my.cnf
+ENV TZ=Asia/Tokyo
+COPY ./init/* /docker-entrypoint-initdb.d/
+
+COPY my.conf /etc/mysql/conf.d/my.conf
 
 CMD ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--innodb-use-native-aio=0"]

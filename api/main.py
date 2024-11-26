@@ -10,10 +10,6 @@ origins = [
     "https://localhost",
     "http://localhost:4200",
     "https://localhost:4200",
-    "http://localhost.justune.net",
-    "https://localhost.justune.net",
-    "http://localhost.justune.net:4200",
-    "https://localhost.justune.net:4200",
     "*"
 ]
 
