@@ -1,46 +1,41 @@
-from fastapi import FastAPI, status, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
+from gunicorn.app.base import Application
+from app import app  # app.pyに定義されたアプリケーションをインポート
+import signal
+from multiprocessing import Process
 
-app = FastAPI()
-origins = [
-    "http://localhost",
-    "https://localhost",
-    "http://localhost:4200",
-    "https://localhost:4200",
-    "*"
-]
+class AppWrapper(Application):
+    def __init__(self, app, options=None):
+        self.application = app
+        self.options = options or {}
+        super().__init__()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    def load_config(self):
+        # 設定ファイルを読み込む
+        self.load_config_from_file("gunicorn_config_prod.py")
 
-@app.exception_handler(RequestValidationError)
-async def handler(request:Request, exc:RequestValidationError):
-    print(exc)
-    return JSONResponse(content={}, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    def load(self):
+        return self.application
 
+def handle_shutdown():
+    print("Shutting down...")
+    exit(0)
 
-@app.get("/")
-def get_hello_world():
-    return {"Hello": "World"}
-
-routers_list = []
-
-for router in routers_list:
-    app.include_router(router)
+def start_gunicorn():
+    AppWrapper(app).run()
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=3000,
-        reload=True,
-        workers="auto"
-    )
+    # シグナルハンドラを設定
+    signal.signal(signal.SIGINT, handle_shutdown)  # Ctrl + C
+    signal.signal(signal.SIGTERM, handle_shutdown)  # Kill signal
+
+    # Gunicornを別プロセスで実行
+    gunicorn_process = Process(target=start_gunicorn)
+    gunicorn_process.start()
+
+    try:
+        # メインプロセスをブロック
+        gunicorn_process.join()
+    except KeyboardInterrupt:
+        print("Received KeyboardInterrupt")
+        gunicorn_process.terminate()
+        gunicorn_process.join()
