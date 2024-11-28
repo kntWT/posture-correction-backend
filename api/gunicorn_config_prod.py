@@ -19,6 +19,8 @@ raw_env = ['MODE=PROD']
 # デーモン化する場合はTrue
 daemon = True
 
+reload = True
+
 # エラーログ
 errorlog = './logs/error_log.txt'
 
