@@ -2,6 +2,8 @@ from gunicorn.app.base import Application
 from app import app  # app.pyに定義されたアプリケーションをインポート
 import signal
 from multiprocessing import Process
+import sys
+
 
 class AppWrapper(Application):
     def __init__(self, app, options=None):
@@ -16,12 +18,15 @@ class AppWrapper(Application):
     def load(self):
         return self.application
 
-def handle_shutdown():
-    print("Shutting down...")
-    exit(0)
+
+def handle_shutdown(signum, frame):
+    print("Shutting down gracefully...")
+    sys.exit(0)
+
 
 def start_gunicorn():
     AppWrapper(app).run()
+
 
 if __name__ == "__main__":
     # シグナルハンドラを設定
