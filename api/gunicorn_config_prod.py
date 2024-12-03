@@ -4,6 +4,8 @@ pythonpath = './'
 # ワーカー数
 workers = 4
 
+wsgi_app = "app:app"
+
 # ワーカーのクラス、*2 にあるようにUvicornWorkerを指定 (Uvicornがインストールされている必要がある)
 worker_class = 'uvicorn.workers.UvicornWorker'
 
@@ -17,7 +19,7 @@ pidfile = 'prod.pid'
 raw_env = ['MODE=PROD']
 
 # デーモン化する場合はTrue
-daemon = True
+# daemon = True
 
 reload = True
 
