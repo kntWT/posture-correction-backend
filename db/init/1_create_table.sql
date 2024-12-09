@@ -7,6 +7,8 @@ create table if not exists users (
     username varchar(255) not null,
     password varchar(255) not null,
     email varchar(255) default null,
+    token varchar(255) default null,
+    is_admin boolean default false,
     neck_to_nose_standard double default null,
     created_at timestamp(3) default current_timestamp(3),
     updated_at timestamp(3) default current_timestamp(3) on update current_timestamp(3)
