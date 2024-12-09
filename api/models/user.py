@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Double, DateTime
+from sqlalchemy import Column, Integer, Boolean, String, Double, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.func import now
 from configs.db import Base
@@ -11,6 +11,7 @@ class User(Base):
     name = Column(String, index=True)
     password = Column(String, index=True)
     email = Column(String, unique=True, index=True)
+    is_admin = Column(Boolean, default=False)
     neck_to_nose_standard = Column(Double, nullable=True)
     created_at = Column(DateTime(TimeZone=True, server_default=now()))
     updated_at = Column(

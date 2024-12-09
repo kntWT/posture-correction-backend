@@ -8,6 +8,7 @@ class User(BaseModel):
     name: str
     password: str
     email: str
+    is_admin: bool
     neck_to_nose_standard: float | None
     created_at: datetime
 
@@ -15,10 +16,12 @@ class User(BaseModel):
 class UserCreateBasic(BaseModel):
     name: str
     password: str
+    is_admin: bool
 
 
 class UserCreateEmail(BaseModel):
     email: str
+    is_admin: bool
 
 
 class UserCalibrate(BaseModel):
