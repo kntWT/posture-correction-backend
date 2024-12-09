@@ -49,6 +49,14 @@ services:
     networks:
       - posture-correction-backend
     tty: true
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: posture-correction-backend-phpmyadmin
+    ports:
+      - "3102:80"
+    networks:
+      - posture-correction-backend
 
 networks:
   posture-correction-backend:
