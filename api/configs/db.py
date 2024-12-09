@@ -12,14 +12,13 @@ def connect_db(trial: int):
         return None, None, None
     try:
         engine = create_engine(
-            f'mysql+pymysql://{user}:{password}@mysql:3306/{db_name}')
+            f'mysql+pymysql://{user}:{password}@{host}/{db_name}')
         SessionLocal = sessionmaker(bind=engine)
         Base = declarative_base()
         return engine, SessionLocal, Base
     except Exception as e:
         time.sleep(1)
         print(e)
-        print(host)
         return connect_db(trial + 1)
 
 
