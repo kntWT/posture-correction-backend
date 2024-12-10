@@ -10,7 +10,7 @@ from app import app
 def export_openapi_scheme():
     if not os.path.exists('openapi'):
         os.makedirs('openapi')
-    with open('openapi/openapi.json', 'w') as file:
+    with open('../openapi/openapi.json', 'w') as file:
         json.dump(get_openapi(
             title=app.title,
             version=app.version,
