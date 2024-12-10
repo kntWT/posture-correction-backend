@@ -1,6 +1,11 @@
 name: Generate and Push OpenAPI Schema on Develop Branch
 
 on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - closed
   push:
     branches:
       - develop
