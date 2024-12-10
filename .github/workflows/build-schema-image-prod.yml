@@ -55,5 +55,5 @@ jobs:
           context: ./api
           file: ./api/schema.Dockerfile
           tags: |
-            your-docker-repo/openapi-schema:prod
-            your-docker-repo/openapi-schema:latest-prod
+            kntwt/posture-correction-schema:prod
+            kntwt/posture-correction-schema:latest-prod
