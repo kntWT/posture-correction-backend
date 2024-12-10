@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: posture-correction-backend-api
     ports:
-      - "3100:3000"
+      - "3100:5555"
     volumes:
       - ./api:/app
       - venv:/app/.venv

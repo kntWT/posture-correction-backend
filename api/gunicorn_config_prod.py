@@ -10,7 +10,7 @@ wsgi_app = "app:app"
 worker_class = 'uvicorn.workers.UvicornWorker'
 
 # IPアドレスとポート
-bind = '0.0.0.0:3000'
+bind = '0.0.0.0:5555'
 
 # プロセスIDを保存するファイル名
 pidfile = 'prod.pid'
