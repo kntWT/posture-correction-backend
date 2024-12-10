@@ -3,15 +3,16 @@ import json
 import os
 import sys
 
-api_dir = os.path.join(os.path.dirname(__file__), "..")
+api_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
 sys.path.append(api_dir)
 
 from app import app
 
 def export_openapi_scheme():
-    if not os.path.exists('openapi'):
-        os.makedirs('openapi')
-    with open(os.path.join(api_dir, 'openapi/openapi.json'), 'w') as file:
+    target_dir = os.path.join(api_dir, 'openapi')
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    with open(os.path.join(target_dir, 'openapi.json'), 'w') as file:
         json.dump(get_openapi(
             title=app.title,
             version=app.version,
