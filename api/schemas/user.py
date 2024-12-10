@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
 
 
@@ -9,7 +8,7 @@ class User(BaseModel):
     password: str
     email: str
     is_admin: bool
-    neck_to_nose_standard: float | None
+    standard_posture_id: int | None
     created_at: datetime
 
 
@@ -24,9 +23,13 @@ class UserCreateEmail(BaseModel):
     is_admin: bool
 
 
+class UserGetByToken(BaseModel):
+    token: str
+
+
 class UserCalibrate(BaseModel):
     id: int
-    neck_to_nose_standard: Optional[float | None]
+    standard_posture_id: int
 
 
 class UserId(BaseModel):
