@@ -23,8 +23,8 @@ class Posture(Base):
     neck_to_nose = Column(Double, nullable=True)
     standard_distance = Column(Double, nullable=True)
     neck_angle = Column(Double, nullable=True)
-    created_at = Column(DateTime(TimeZone=True, server_default=now()))
+    created_at = Column(DateTime(timezone=True))
     updated_at = Column(
-        DateTime(TimeZone=True, server_default=now(), onupdate=now()))
+        DateTime(timezone=True))
 
     owner = relationship("User", back_populates="postures")

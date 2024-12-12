@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Boolean, String, Double, DateTime
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.func import now
+from sqlalchemy.sql import func
 from configs.db import Base
 
 
@@ -13,8 +13,8 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     is_admin = Column(Boolean, default=False)
     standard_posture_id = Column(Integer, nullable=True)
-    created_at = Column(DateTime(TimeZone=True, server_default=now()))
+    created_at = Column(DateTime(timezone=True))
     updated_at = Column(
-        DateTime(TimeZone=True, server_default=now(), onupdate=now()))
+        DateTime(timezone=True))
 
     postures = relationship("Posture", back_populates="owner")
