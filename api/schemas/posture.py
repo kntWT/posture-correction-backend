@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
 
+
 class Posture(BaseModel):
     id: int
     user_id: int
@@ -32,10 +33,12 @@ class PostureOnlysensor(BaseModel):
     sensor_gamma: float | None = Field(alias="gamma")
     created_at: datetime | str = Field(alias="createdAt")
 
+
 class PostureOnlyFace(BaseModel):
     face_pitch: float | None = Field(alias="pitch")
     face_yaw: float | None = Field(alias="yaw")
     face_roll: float | None = Field(alias="roll")
+
 
 class PostureOnlyPosition(BaseModel):
     nose_x: float | None = Field(alias="noseX")
@@ -44,6 +47,7 @@ class PostureOnlyPosition(BaseModel):
     neck_y: float | None = Field(alias="neckY")
     neck_to_nose: float | None = Field(alias="neckToNose")
     standard_dist: float | None = Field(alias="standardDist")
+
 
 class PosturePutFilename(BaseModel):
     id: int | None
