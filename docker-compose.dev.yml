@@ -1,0 +1,59 @@
+version: '3'
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: dev.Dockerfile
+    container_name: posture-correction-backend-api
+    ports:
+      - "3330:5555"
+    volumes:
+      - ./api:/app
+      - venv:/app/.venv
+    depends_on:
+      db:
+        condition: service_healthy
+    # restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - posture-correction-backend
+    tty: true
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: posture-correction-backend-db
+    ports:
+      - "3331:3306"
+    volumes:
+      - ./db/data:/var/lib/mysql
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - posture-correction-backend
+    tty: true
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: posture-correction-backend-phpmyadmin
+    ports:
+      - "3332:80"
+    networks:
+      - posture-correction-backend
+
+networks:
+  posture-correction-backend:
+    driver: bridge
+
+volumes:
+  venv:
