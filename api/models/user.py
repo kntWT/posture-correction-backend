@@ -12,7 +12,7 @@ class User(Base):
     password = Column(String, index=True)
     email = Column(String, unique=True, index=True)
     is_admin = Column(Boolean, default=False)
-    neck_to_nose_standard = Column(Double, nullable=True)
+    standard_posture_id = Column(Integer, nullable=True)
     created_at = Column(DateTime(TimeZone=True, server_default=now()))
     updated_at = Column(
         DateTime(TimeZone=True, server_default=now(), onupdate=now()))
