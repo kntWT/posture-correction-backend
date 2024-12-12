@@ -1,14 +1,14 @@
 import jwt
 from datetime import datetime, timedelta
 from typing import Optional
-from jst import JST
-from config.env import SECRET_KEY
+from utils.jst import JST
+from configs.env import secret_key
 
 ALGORITHM = "EdDSA"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60  # トークンの有効期限（分）
 
 
-def generate_token(data: dict, expires_delta: Optional[timedelta] = None):
+def generate_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(JST) + expires_delta
@@ -20,7 +20,7 @@ def generate_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def decode_token(token: str):
+def decode_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
