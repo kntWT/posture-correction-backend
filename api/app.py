@@ -24,7 +24,7 @@ app.add_middleware(
 @app.exception_handler(RequestValidationError)
 async def handler(request: Request, exc: RequestValidationError):
     print(exc)
-    return JSONResponse(content={}, status_code=status.HTTP_400_UNPROCESSABLE_ENTITY)
+    return JSONResponse(content={}, status_code=status.HTTP_400_BAD_REQUEST)
 
 
 @app.exception_handler(HTTPException.BadRequestException)
