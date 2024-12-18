@@ -1,18 +1,18 @@
 from sqlalchemy.orm import Session
-from models.posture import Posture
+from models.posture import Posture as Model
 from schemas.posture import Posture, PostureOnlyFace, PostureOnlyPosition, PostureOnlysensor, PostureOnlyFilename, PostureCreate
 
 
 def get_postures(db: Session) -> list[Posture]:
-    return db.query(Posture).all()
+    return db.query(Model).all()
 
 
 def get_posture_by_id(db: Session, posture_id: int) -> list[Posture] | None:
-    return db.query(Posture).filter(Posture.id == posture_id).one_or_none()
+    return db.query(Model).filter(Model.id == posture_id).one_or_none()
 
 
 def get_posture_by_user_id(db: Session, user_id: int) -> list[Posture] | None:
-    return db.query(Posture).filter(Posture.user_id == user_id).all()
+    return db.query(Model).filter(Model.user_id == user_id).all()
 
 
 def create_posture(db: Session, posture: PostureCreate) -> Posture:
@@ -23,7 +23,7 @@ def create_posture(db: Session, posture: PostureCreate) -> Posture:
 
 
 def update_filename(db: Session, posture: PostureOnlyFilename) -> Posture:
-    p = db.query(Posture).filter(Posture.id == posture.id).first()
+    p = db.query(Model).filter(Model.id == posture.id).first()
     p.file_name = posture.file_name
     db.commit()
     db.refresh(p)
@@ -31,7 +31,7 @@ def update_filename(db: Session, posture: PostureOnlyFilename) -> Posture:
 
 
 def update_sensor(db: Session, posture: PostureOnlysensor) -> Posture:
-    p = db.query(Posture).filter(Posture.id == posture.id).first()
+    p = db.query(Model).filter(Model.id == posture.id).first()
     p.sensor_alpha = posture.sensor_alpha
     p.sensor_beta = posture.sensor_beta
     p.sensor_gamma = posture.sensor_gamma
@@ -41,7 +41,7 @@ def update_sensor(db: Session, posture: PostureOnlysensor) -> Posture:
 
 
 def update_face(db: Session, posture: PostureOnlyFace) -> Posture:
-    p = db.query(Posture).filter(Posture.id == posture.id).first()
+    p = db.query(Model).filter(Model.id == posture.id).first()
     p.face_pitch = posture.face_pitch
     p.face_yaw = posture.face_yaw
     p.face_roll = posture.face_roll
@@ -51,7 +51,7 @@ def update_face(db: Session, posture: PostureOnlyFace) -> Posture:
 
 
 def update_position(db: Session, posture: PostureOnlyPosition) -> Posture:
-    p = db.query(Posture).filter(Posture.id == posture.id).first()
+    p = db.query(Model).filter(Model.id == posture.id).first()
     p.nose_x = posture.nose_x
     p.nose_y = posture.nose_y
     p.neck_x = posture.neck_x

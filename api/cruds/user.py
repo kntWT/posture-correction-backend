@@ -1,23 +1,23 @@
 import secrets
-from models.user import User
-from schemas.user import UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId
+from models.user import User as Model
+from schemas.user import User, UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId
 from sqlalchemy.orm import Session
 
 
 def get_users(db: Session) -> list[User]:
-    return db.query(User).all()
+    return db.query(Model).all()
 
 
 def get_user_by_id(db: Session, user: UserId) -> User | None:
-    return db.query(User).filter(User.id == user.id).one_or_none()
+    return db.query(Model).filter(Model.id == user.id).one_or_none()
 
 
 def get_user_by_token(db: Session, user: UserGetByToken) -> User | None:
-    return db.query(User).filter(User.token == user.token).one_or_none()
+    return db.query(Model).filter(Model.token == user.token).one_or_none()
 
 
 def is_admin_by_token(db: Session, user: UserGetByToken) -> bool:
-    u = db.query(User).filter(User.token == user.token).one_or_none()
+    u = db.query(Model).filter(Model.token == user.token).one_or_none()
     return None if u is None else u.is_admin
 
 
@@ -38,7 +38,7 @@ def create_user_from_email(db: Session, user: UserCreateEmail) -> User:
 
 
 def calibrate_user(db: Session, user: UserCalibrate) -> User:
-    user = db.query(User).filter(User.id == user.id).first()
+    user = db.query(Model).filter(Model.id == user.id).first()
     user.standard_posture_id = user.standard_posture_id
     db.commit()
     db.refresh(user)
