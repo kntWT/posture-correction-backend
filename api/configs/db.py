@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import time
 
-from config.env import user, password, db_name, host
+from configs.env import user, password, db_name, host
 
 
 def connect_db(trial: int):

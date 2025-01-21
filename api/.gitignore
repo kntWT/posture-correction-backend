@@ -165,3 +165,4 @@ estimators/model/
 logs/
 prod.pid
 openapi/
+pytorch-openpose/

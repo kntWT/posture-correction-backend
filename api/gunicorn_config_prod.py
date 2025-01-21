@@ -31,3 +31,5 @@ proc_name = 'posture_correction_api'
 
 # アクセスログ
 accesslog = './logs/access_log.txt'
+
+loglevel = 'debug'
