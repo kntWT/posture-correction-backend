@@ -1,19 +1,32 @@
 import secrets
 from models.user import User as Model
-from schemas.user import User, UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId
+from schemas.user import User, UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId, UserBasicAuth, UserEmailAuth
 from sqlalchemy.orm import Session
 
 
 def get_users(db: Session) -> list[User]:
-    return db.query(Model).all()
+    users = db.query(Model).all()
+    return [User(**u.to_dict()) for u in users]
 
 
 def get_user_by_id(db: Session, user: UserId) -> User | None:
-    return db.query(Model).filter(Model.id == user.id).one_or_none()
+    u = db.query(Model).filter(Model.id == user.id).one_or_none()
+    return None if u is None else u
+
+
+def get_user_by_basic(db: Session, user: UserBasicAuth) -> User | None:
+    return db.query(Model).filter(Model.name == user.name).filter(
+        Model.password == user.password).one_or_none()
+
+
+def get_user_by_email(db: Session, user: UserEmailAuth) -> User | None:
+    u = db.query(Model).filter(Model.email == user.email).one_or_none()
+    return None if u is None else u
 
 
 def get_user_by_token(db: Session, user: UserGetByToken) -> User | None:
-    return db.query(Model).filter(Model.token == user.token).one_or_none()
+    u = db.query(Model).filter(Model.token == user.token).one_or_none()
+    return None if u is None else u
 
 
 def is_admin_by_token(db: Session, user: UserGetByToken) -> bool:
@@ -49,7 +62,7 @@ def update_user(db: Session, user: User) -> User:
     u = get_user_by_token(db, UserGetByToken(token=user.token))
     if u is None:
         return None
-    u = {**u.dict(), **user.dict()}
+    u = {**u, **user}
     db.commit()
     db.refresh(user)
     return user

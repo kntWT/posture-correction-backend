@@ -4,23 +4,34 @@ from datetime import datetime
 
 class User(BaseModel):
     id: int
-    name: str
+    name: str = ""
     password: str
-    email: str
-    is_admin: bool
+    email: str | None
+    is_admin: bool = False
     standard_posture_id: int | None
     created_at: datetime
+
+
+class UserBasicAuth(BaseModel):
+    name: str
+    password: str
+
+
+class UserEmailAuth(BaseModel):
+    email: str
+    name: str = ""
 
 
 class UserCreateBasic(BaseModel):
     name: str
     password: str
-    is_admin: bool
+    is_admin: bool = False
 
 
 class UserCreateEmail(BaseModel):
     email: str
-    is_admin: bool
+    name: str = ""
+    is_admin: bool = False
 
 
 class UserGetByToken(BaseModel):
