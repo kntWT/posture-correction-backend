@@ -5,7 +5,7 @@ from datetime import datetime
 class User(BaseModel):
     id: int
     name: str = ""
-    password: str
+    password: str = ""
     email: str | None
     is_admin: bool = False
     standard_posture_id: int | None
@@ -19,7 +19,6 @@ class UserBasicAuth(BaseModel):
 
 class UserEmailAuth(BaseModel):
     email: str
-    name: str = ""
 
 
 class UserCreateBasic(BaseModel):
@@ -30,7 +29,7 @@ class UserCreateBasic(BaseModel):
 
 class UserCreateEmail(BaseModel):
     email: str
-    name: str = ""
+    name: str
     is_admin: bool = False
 
 
