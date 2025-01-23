@@ -27,3 +27,6 @@ class Posture(Base):
         DateTime(timezone=True))
 
     owner = relationship("User", back_populates="postures")
+
+    class Config:
+        orm_mode = True
