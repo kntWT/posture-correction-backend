@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from typing import Optional
 from utils.jst import JST
-from configs.env import secret_key
+from configs.env import secret_key, public_key
 from schemas.http_exception import TokenExpiredException, UnauthorizedException
 
 ALGORITHM = "EdDSA"
@@ -23,7 +23,7 @@ def generate_token(data: dict, expires_delta: Optional[timedelta] = None) -> str
 
 def decode_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, public_key, algorithms=[ALGORITHM])
         return payload
     except jwt.ExpiredSignatureError:
         raise TokenExpiredException("Token expired")
