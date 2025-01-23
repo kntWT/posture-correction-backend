@@ -6,6 +6,7 @@ from typing import Union
 from sqlalchemy.orm import Session
 from guards.auth import login_auth, admin_auth
 from configs.db import get_db
+from configs.env import cookie_token_key
 from utils import jwt
 
 user = APIRouter(prefix="/user", tags=["user"])
@@ -19,7 +20,7 @@ async def get_users(db: Session = Depends(get_db), _admin: User = Depends(admin_
 @user.get("/login", response_model=Union[User, None], responses=error_responses([UnauthorizedException]))
 async def login(response: Response, _login: User = Depends(login_auth)):
     jwt = jwt.generate_token({"token": _login.token})
-    response.set_cookie(key="token", value=jwt)
+    response.set_cookie(key=cookie_token_key, value=jwt)
     return _login
 
 
@@ -31,7 +32,7 @@ async def login_by_basic(name: str, password: str, response: Response, db: Sessi
     if user is not None:
         jwt_token = jwt.generate_token({"token": user.token})
         print(jwt_token)
-        response.set_cookie(key="token", value=jwt_token)
+        response.set_cookie(key=cookie_token_key, value=jwt_token)
     return user
 
 
@@ -40,7 +41,7 @@ async def login_by_email(user: UserEmailAuth, response: Response, db: Session = 
     user: User = crud.get_user_by_email(db, user)
     if user is not None:
         jwt_token = jwt.generate_token({"token": user.token})
-        response.set_cookie(key="token", value=jwt_token)
+        response.set_cookie(key=cookie_token_key, value=jwt_token)
     return user
 
 
@@ -51,20 +52,23 @@ async def is_exist_by_basic(name: str, password: str, db: Session = Depends(get_
 
 @user.get("/me/email", response_model=bool)
 async def is_exist_by_email(email: str, db: Session = Depends(get_db)):
-    return crud.get_user_by_email(db, email) is not None
+    return crud.get_user_by_email(db, UserEmailAuth(email=email)) is not None
 
 
 @user.post("/create/basic", response_model=User, responses=error_responses([BadRequestException]))
 async def create_user(user: UserCreateBasic, response: Response, db: Session = Depends(get_db)):
     user: User = crud.create_user(db, user)
     jwt_token = jwt.generate_token({"token": user.token})
-    response.set_cookie(key="token", value=jwt_token)
+    response.set_cookie(key=cookie_token_key, value=jwt_token)
     return user
 
 
 @user.post("/create/email", response_model=User, responses=error_responses([BadRequestException]))
-async def create_user(user: UserCreateEmail, db: Session = Depends(get_db)):
-    return crud.create_user(db, user)
+async def create_user(user: UserCreateEmail, response: Response, db: Session = Depends(get_db)):
+    user: User = crud.create_user_from_email(db, user)
+    jwt_token = jwt.generate_token({"token": user.token})
+    response.set_cookie(key=cookie_token_key, value=jwt_token)
+    return user
 
 
 @user.put("/calibrate", response_model=User, responses=error_responses([UnauthorizedException]))

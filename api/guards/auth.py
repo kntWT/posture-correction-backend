@@ -6,8 +6,9 @@ from schemas.user import User, UserGetByToken
 from schemas.http_exception import UnauthorizedException, TokenExpiredException, ForbiddenException
 from sqlalchemy.orm import Session
 from configs.db import get_db
+from configs.env import cookie_token_key
 
-security = APIKeyCookie(name="token")
+security = APIKeyCookie(name=cookie_token_key)
 
 
 def login_auth(db: Session = Depends(get_db), token: str = Security(security)) -> User:
