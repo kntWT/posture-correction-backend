@@ -33,3 +33,6 @@ docker-restart-prod:
 
 docker-restart-api-prod:
 	docker compose -f docker-compose.prod.yml restart api
+
+refresh-db:
+	rm -rf db/data
