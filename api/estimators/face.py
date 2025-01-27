@@ -2,7 +2,7 @@
 # import math
 # import re
 # import sys
-from config.env import image_dir
+from configs.env import image_dir
 from sixdrepnet import utils
 from sixdrepnet.model import SixDRepNet
 from huggingface_hub import hf_hub_download
@@ -63,7 +63,7 @@ model.to(device)
 model.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
 
 
-async def estimate_head_pose(img=None, user_id: int = 1, file_name: str = "no_name") -> Dict | None:
+async def estimate_head_pose(img=None, sub_pash: str = "1", file_name: str = "no_name") -> Dict | None:
     if img is None:
         return None
 
@@ -106,7 +106,7 @@ async def estimate_head_pose(img=None, user_id: int = 1, file_name: str = "no_na
     # utils.draw_axis(frame, y_pred_deg, p_pred_deg, r_pred_deg, left+int(.5*(right-left)), top, size=100)
     utils.plot_pose_cube(img,  yaw, pitch, roll, x_min + int(.5*(
         x_max-x_min)), y_min + int(.5*(y_max-y_min)), size=bbox_width)
-    save_dir: str = f"{_image_dir}/{user_id}/head"
+    save_dir: str = f"{_image_dir}/{sub_pash}/head"
     os.makedirs(save_dir, exist_ok=True)
     cv2.imwrite(f"{save_dir}/{file_name}", img)
     return {

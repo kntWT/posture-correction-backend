@@ -1,11 +1,7 @@
 from fastapi.openapi.utils import get_openapi
 import json
 import os
-import sys
-
-api_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
-sys.path.append(api_dir)
-
+from . import api_dir
 from app import app
 
 def export_openapi_scheme():

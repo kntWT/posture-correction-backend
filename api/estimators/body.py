@@ -1,5 +1,3 @@
-from src import util
-from src.body import Body
 import cv2
 import numpy as np
 import math
@@ -21,6 +19,10 @@ Point = Dict[str, float]
 # score: score
 
 sys.path.append("pytorch-openpose")
+
+from src import util
+from src.body import Body
+
 body_estimation = Body("pytorch-openpose/model/body_pose_model.pth")
 
 gpu = 0
@@ -41,13 +43,13 @@ def parse_point(cand) -> Point:
     }
 
 
-async def estimate_body_pose(img: np.ndarray = None, user_id: int = 1, file_name: str = "no_name") -> Dict | None:
+async def estimate_body_pose(img: np.ndarray = None, sub_path: str = "1", file_name: str = "no_name") -> Dict | None:
     if img is None:
         return None
     candidate, subset = body_estimation(img)
     canvas: np.ndarray = copy.deepcopy(img)
     canvas = util.draw_bodypose(canvas, candidate, subset)
-    save_path: str = f"{_image_dir}/{user_id}/neck"
+    save_path: str = f"{_image_dir}/{sub_path}/neck"
     if len(subset) <= 0:
         # print("cannot detected")
         return None
