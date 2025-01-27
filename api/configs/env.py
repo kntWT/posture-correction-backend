@@ -15,7 +15,7 @@ with open("./configs/keys/secret_key", "r") as f:
 with open("./configs/keys/public_key.pub", "r") as f:
     public_key = f.read()
 
-cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") | "token"
+cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") or "token"
 
 image_dir = os.environ.get("IMAGE_DIR")
 original_image_dir = os.environ.get("ORIGINAL_IMAGE_DIR")
