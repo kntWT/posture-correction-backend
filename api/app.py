@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import schemas.http_exception as HTTPException
+from schemas.common import ResponseEx
 from routes.user import user
 from routes.posture import posture
 
@@ -56,6 +57,10 @@ async def token_expired_handler(request: Request, exc: HTTPException.TokenExpire
 async def intenal_server_errorhandler(request: Request, exc: HTTPException.InternalServerErrorException):
     return JSONResponse(content={"detail": exc.detail}, status_code=exc.status_code)
 
+# apiが動いているかの確認のため
+@app.get("/", response_model=ResponseEx)
+async def hello_world():
+    return ResponseEx("hello world")
 
 routers_list = [user, posture]
 
