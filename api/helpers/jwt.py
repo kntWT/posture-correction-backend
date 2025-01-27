@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 from typing import Optional
-from utils.jst import JST
+from helpers.jst import JST
 from configs.env import secret_key, public_key
 from schemas.http_exception import TokenExpiredException, UnauthorizedException
 

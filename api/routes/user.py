@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from guards.auth import login_auth, admin_auth
 from configs.db import get_db
 from configs.env import cookie_token_key
-from utils import jwt
+from helpers import jwt
 
 user = APIRouter(prefix="/user", tags=["user"])
 

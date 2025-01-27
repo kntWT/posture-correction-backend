@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from utils.jst import JST
+from helpers.jst import JST
 
 class ResponseEx(BaseModel):
     status: bool

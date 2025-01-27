@@ -1,4 +1,4 @@
-from utils.jwt import decode_token
+from helpers.jwt import decode_token
 from fastapi import Security, Depends
 from fastapi.security import APIKeyCookie
 from cruds.user import get_user_by_token
