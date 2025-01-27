@@ -163,6 +163,7 @@ cython_debug/
 
 estimators/model/
 logs/
+images/
 prod.pid
 openapi/
 pytorch-openpose/
