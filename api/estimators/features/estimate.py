@@ -9,20 +9,23 @@ from configs.env import image_dir, original_image_dir
 
 # from estimators.body import estimate_body_pose
 # from estimators.face import estimate_head_pose
-from estimators.face import estimate_head_pose
-from estimators.body import estimate_body_pose
-    
+from estimators.features.face import estimate_head_pose
+from estimators.features.body import estimate_body_pose
+
+
 async def estimate(path: str, sub_path: int, file_name: str):
     try:
-        image = cv2.imread(os.path.join(path, f"{sub_path}", "original", file_name))
+        image = cv2.imread(os.path.join(
+            path, f"{sub_path}", "original", file_name))
         face_feature, head_pose = await estimate_from_image(image, sub_path, file_name)
         if face_feature is None or head_pose is None:
             return
-        
+
         pass
     except FileNotFoundError as e:
         print(e)
         return
+
 
 async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
     tasks: List[Any] = []
