@@ -6,6 +6,7 @@ class Posture(BaseModel):
     id: int
     user_id: int
     file_name: str | None
+    neck_angle: float | None
     sensor_alpha: float | None
     sensor_beta: float | None
     sensor_gamma: float | None
@@ -29,6 +30,7 @@ class Posture(BaseModel):
 class PostureCreate(BaseModel):
     user_id: int
     file_name: str | None
+    neck_angle: float | None
     sensor_alpha: float | None
     sensor_beta: float | None
     sensor_gamma: float | None
@@ -43,8 +45,7 @@ class PostureCreate(BaseModel):
     standard_dist: float | None
 
 
-class PostureOnlysensor(BaseModel):
-    user_id: int = Field(alias="userId")
+class PostureOnlySensor(BaseModel):
     sensor_alpha: float | None = Field(alias="alpha")
     sensor_beta: float | None = Field(alias="beta")
     sensor_gamma: float | None = Field(alias="gamma")
