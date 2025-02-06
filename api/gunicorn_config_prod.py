@@ -2,7 +2,8 @@
 pythonpath = './'
 
 # ワーカー数
-workers = 4
+# モデルロードを減らすためにワーカー数を1にしている
+workers = 1
 
 wsgi_app = "app:app"
 
