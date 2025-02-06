@@ -22,11 +22,11 @@ def parse_np(data):
         d.get("neck_to_nose_standard", 0)) if "neck_to_nose_standard" in d and d.get("neck_to_nose_standard", 0) is not None else 2.5 for d in data])
     normalized_ratio = normalized_dist / neck_to_nose_standard
     orientation_alpha = np.array(
-        [float(d.get("orientation_alpha", 0)) for d in data])
+        [float(d.get("orientation_alpha", d.get("sensor_alpha", d.get("alpha", 0)))) for d in data])
     orientation_beta = np.array(
-        [float(d.get("orientation_beta", 0)) for d in data])
+        [float(d.get("orientation_beta", d.get("sensor_beta", d.get("beta", 0)))) for d in data])
     orientation_gamma = np.array(
-        [float(d.get("orientation_gamma", 0)) for d in data])
+        [float(d.get("orientation_gamma", d.get("sensor_gamma", d.get("gamma", 0)))) for d in data])
     rots = unify_rotation_order(
         orientation_alpha, orientation_beta, orientation_gamma)
     alpha = rots["alpha"]
