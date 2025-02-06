@@ -19,3 +19,5 @@ cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") or "token"
 
 image_dir = os.environ.get("IMAGE_DIR")
 original_image_dir = os.environ.get("ORIGINAL_IMAGE_DIR")
+
+model_dir = "estimators/model"

@@ -10,6 +10,7 @@ import joblib
 from estimators.loader import flatten
 from estimators.plot import plot_diff_by_y
 from estimators.loader import load
+from configs.env import model_dir
 
 
 def root_mean_square_error(y_true, y_pred):
@@ -225,6 +226,6 @@ def train(evaluate=False, output_figure=False):
         estimator, initial_types=initial_type)
 
     # 保存
-    with open("extra_trees.onnx", "wb") as f:
+    with open(f"{model_dir}/extra_trees.onnx", "wb") as f:
         f.write(onnx_model.SerializeToString())
-    joblib.dump(scaler, "scaler.pkl")
+    joblib.dump(scaler, f"{model_dir}/scaler.pkl")

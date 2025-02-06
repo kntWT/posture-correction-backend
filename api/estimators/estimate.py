@@ -6,12 +6,13 @@ import os
 
 from estimators.features.estimate import estimate as estimate_feature, estimate_from_image as estimate_feature_from_image
 from estimators.formatter import parse_np
+from configs.env import model_dir
 
 
-sess = ort.InferenceSession("extra_trees.onnx", providers=[
+sess = ort.InferenceSession(f"{model_dir}/extra_trees.onnx", providers=[
                             "CPUExecutionProvider"])
 sess.set_providers(["CPUExecutionProvider"], [{"input_op_num_threads": 6}])
-scaler = joblib.load("scaler.pkl")
+scaler = joblib.load(f"{model_dir}/scaler.pkl")
 
 
 async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str, features: dict):
