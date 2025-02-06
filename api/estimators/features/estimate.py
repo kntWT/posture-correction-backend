@@ -19,9 +19,8 @@ async def estimate(path: str, sub_path: int, file_name: str):
             path, f"{sub_path}", "original", file_name))
         face_feature, head_pose = await estimate_from_image(image, sub_path, file_name)
         if face_feature is None or head_pose is None:
-            return
-
-        pass
+            return None, None
+        return face_feature, head_pose
     except FileNotFoundError as e:
         print(e)
         return
