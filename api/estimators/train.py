@@ -170,8 +170,7 @@ def fold5_cross_val_score(estimator, xs, ys_, margin=5, _range=(0, 81, 10), show
         # print(f"RMSLE(test): {test_rmsle}")
         print(f"R2(train): {train_r2}")
         print(f"R2(test): {test_r2}")
-        print(f"Accuracy(train): {[train_accuracy[j][j]
-              for j in range(_len)]}")
+        print(f"Accuracy(train): {[train_accuracy[j][j]for j in range(_len)]}")
         print(f"Accuracy(test): {[test_accuracy[j][j] for j in range(_len)]}")
         print(f"Accuracy5(train): {train_accuracy_5}")
         print(f"Accuracy5(test): {test_accuracy_5}")
@@ -217,7 +216,7 @@ def train(evaluate=False, output_figure=False):
         print(scores)
         print(accuracy)
     Xs = np.array([x.T for x in xs], dtype=object)
-    Ys = np.array(ys, dtype=object)
+    Ys = np.concatenate(np.array(ys, dtype=object))
     scaler = StandardScaler()
     Xs = scaler.fit_transform(np.concatenate(Xs))
     estimator.fit(Xs, Ys)
@@ -229,3 +228,4 @@ def train(evaluate=False, output_figure=False):
     with open(f"{model_dir}/extra_trees.onnx", "wb") as f:
         f.write(onnx_model.SerializeToString())
     joblib.dump(scaler, f"{model_dir}/scaler.pkl")
+    print("model trained")
