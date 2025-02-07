@@ -35,7 +35,7 @@ def is_admin_by_token(db: Session, user: UserGetByToken) -> bool:
 
 
 def create_user_from_basic(db: Session, _user: UserCreateBasic) -> User:
-    user = Model(**_user.dict())
+    user = Model(**_user.model_dump())
     user.token = str(secrets.token_hex())
     db.add(user)
     db.commit()
