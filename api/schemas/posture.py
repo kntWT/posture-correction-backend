@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, AliasChoices
 from datetime import datetime
 
 
@@ -18,7 +18,7 @@ class Posture(BaseModel):
     neck_x: float | None
     neck_y: float | None
     neck_to_nose: float | None
-    standard_dist: float | None
+    standard_distance: float | None
     created_at: datetime | str | None
     updated_at: datetime | str
 
@@ -42,13 +42,17 @@ class PostureCreate(BaseModel):
     neck_x: float | None
     neck_y: float | None
     neck_to_nose: float | None
-    standard_dist: float | None
+    standard_distance: float | None
+    created_at: datetime | str
 
 
 class PostureOnlySensor(BaseModel):
-    sensor_alpha: float | None = Field(alias="alpha")
-    sensor_beta: float | None = Field(alias="beta")
-    sensor_gamma: float | None = Field(alias="gamma")
+    sensor_alpha: float | None = Field(validation_alias=AliasChoices(
+        "alpha", "orientation_alpha", "orientationAlpha"))
+    sensor_beta: float | None = Field(validation_alias=AliasChoices(
+        "beta", "orientation_beta", "orientationBeta"))
+    sensor_gamma: float | None = Field(validation_alias=AliasChoices(
+        "gamma", "orientation_gamma", "orientationGamma"))
 
 
 class PostureOnlyFace(BaseModel):
@@ -63,7 +67,7 @@ class PostureOnlyPosition(BaseModel):
     neck_x: float | None = Field(alias="neckX")
     neck_y: float | None = Field(alias="neckY")
     neck_to_nose: float | None = Field(alias="neckToNose")
-    standard_dist: float | None = Field(alias="standardDist")
+    standard_distance: float | None = Field(alias="standardDist")
 
 
 class PostureOnlyFilename(BaseModel):
