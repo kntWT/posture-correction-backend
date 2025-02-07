@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models.posture import Posture as Model
-from schemas.posture import Posture, PostureOnlyFace, PostureOnlyPosition, PostureOnlysensor, PostureOnlyFilename, PostureCreate
+from schemas.posture import Posture, PostureOnlyFace, PostureOnlyPosition, PostureOnlySensor, PostureOnlyFilename, PostureCreate
 
 
 def get_postures(db: Session) -> list[Posture]:
@@ -30,7 +30,7 @@ def update_filename(db: Session, posture: PostureOnlyFilename) -> Posture:
     return p
 
 
-def update_sensor(db: Session, posture: PostureOnlysensor) -> Posture:
+def update_sensor(db: Session, posture: PostureOnlySensor) -> Posture:
     p = db.query(Model).filter(Model.id == posture.id).first()
     p.sensor_alpha = posture.sensor_alpha
     p.sensor_beta = posture.sensor_beta
