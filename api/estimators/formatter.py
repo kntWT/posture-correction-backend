@@ -16,7 +16,7 @@ def unify_rotation_order(alpha, beta, gamma):
 def parse_np(data):
     set_id = np.array([float(d.get("set_id", 0)) for d in data])
     neck_to_nose = np.array([float(d.get("neck_to_nose", 0)) for d in data])
-    standard_dist = np.array([float(d.get("standard_dist", 0)) for d in data])
+    standard_dist = np.array([float(d.get("standard_dist", d.get("standard_distance"))) for d in data])
     normalized_dist = neck_to_nose / standard_dist
     neck_to_nose_standard = np.array([float(
         d.get("neck_to_nose_standard", 0)) if "neck_to_nose_standard" in d and d.get("neck_to_nose_standard", 0) is not None else 2.5 for d in data])
@@ -32,9 +32,9 @@ def parse_np(data):
     alpha = rots["alpha"]
     beta = 90 - rots["beta"]
     gamma = rots["gamma"]
-    pitch = np.array([float(d.get("pitch", 0)) for d in data])
-    yaw = np.array([float(d.get("yaw", 0)) for d in data])
-    roll = np.array([float(d.get("roll", 0)) for d in data])
+    pitch = np.array([float(d.get("pitch", d.get("face_pitch", 0))) for d in data])
+    yaw = np.array([float(d.get("yaw", d.get("face_pitch", 0))) for d in data])
+    roll = np.array([float(d.get("roll", d.get("face_pitch", 0))) for d in data])
     nose_x = np.array([float(d.get("nose_x", 0)) for d in data])
     nose_y = np.array([float(d.get("nose_y", 0)) for d in data])
     neck_x = np.array([float(d.get("neck_x", 0)) for d in data])
