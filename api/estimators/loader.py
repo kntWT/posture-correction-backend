@@ -113,6 +113,6 @@ def load(path: str = "estimators/data"):
     for file_name in os.listdir(path):
         if not file_name.endswith(".csv"):
             continue
-        joined_np = load_data_from_joined_csv(file_name, False)
+        joined_np = load_data_from_joined_csv(os.path.join(path, file_name), False)
         joined_nps_all = [*joined_nps_all, joined_np]
     return np.array(concat_data(joined_nps_all), dtype=object)

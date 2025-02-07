@@ -1,5 +1,8 @@
 import japanize_matplotlib
 import matplotlib.pyplot as plt
+import os
+
+from configs.env import evaluate_output_dir
 
 
 def plot_diff_by_y(y_train, y_train_pred, y_test, y_pred):
@@ -32,7 +35,7 @@ def plot_diff_by_y(y_train, y_train_pred, y_test, y_pred):
     plt.xlim([-20, 100])
     plt.ylim([-20, 100])
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f"{evaluate_output_dir}/eval_x.png")
 
 
 def plot_diff_by_x(X, feature, y, estimator):
@@ -55,4 +58,4 @@ def plot_diff_by_x(X, feature, y, estimator):
         fig.colorbar(im, ax=ax).set_label("正解データ（度）")
         plt.xlabel(key)
         plt.ylabel("予測残差（度）")
-        plt.show()
+        plt.savefig(f"{evaluate_output_dir}/eval_x_{key}.png")
