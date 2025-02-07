@@ -4,9 +4,12 @@ from schemas.posture import Posture, PostureCreate, PostureOnlySensor, PostureOn
 from schemas.user import User
 from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, NotFoundException, error_responses
 import cv2
+import json
+from datetime import datetime
+
 import cruds.posture as crud
 from configs.db import get_db
-from configs.env import image_dir
+from configs.env import image_dir, timestamp_format
 from estimators.features.estimate import estimate_from_image as estimate_feature_from_image
 from estimators.estimate import estimate_from_image, estimate_from_features
 from guards.auth import login_auth, admin_auth
@@ -38,21 +41,37 @@ async def create_posture(posture: PostureCreate, db: Session = Depends(get_db), 
 
 
 @posture.post("/estimate", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException]))
-async def estimate_posture(file: UploadFile = File(...), sensors: PostureOnlySensor = Body(...), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+    try:
+        sensors_json = json.loads(sensors)
+        orientations = PostureOnlySensor(**sensors_json).model_dump()
+    except json.JSONDecodeError:
+        return {"error": "Invalid JSON format"}
+
     file_path = save_file(file.file, image_dir,
-                          f"original/{user.id}", file.filename)
+                          f"{user.id}/original", file.filename)
+    timestamp_str = file.filename.split(".jpg")[0]
+    timestamp = datetime.strptime(f"{timestamp_str}000", timestamp_format)
     if file_path is None:
         raise BadRequestException("Failed to upload file")
     img = cv2.imread(file_path)
     face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename)
     if face_feature is None or head_feature is None:
         raise BadRequestException("Failed to estimate posture")
-    neck_angle = estimate_from_features({**face_feature, **head_feature})
-    return crud.create_posture(db, PostureCreate(user_id=user.id, file_name=file.filename, neck_angle=neck_angle, **face_feature, **head_feature))
+    neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations})
+    return crud.create_posture(db, PostureCreate(
+        **face_feature, **head_feature, **orientations,
+        user_id=user.id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
 
 
 @posture.post("/estimate/feature", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException]))
-async def estimate_feature(file: UploadFile = File(...), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+    try:
+        sensors_json = json.loads(sensors)
+        orientations = PostureOnlySensor(**sensors_json).model_dump()
+    except json.JSONDecodeError:
+        return {"error": "Invalid JSON format"}
+    
     file_path = save_file(file.file, image_dir,
                           f"original/{user.id}", file.filename)
     if file_path is None:
@@ -61,7 +80,11 @@ async def estimate_feature(file: UploadFile = File(...), db: Session = Depends(g
     face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename)
     if face_feature is None or head_feature is None:
         raise BadRequestException("Failed to estimate posture")
-    return crud.create_posture(db, PostureCreate(user_id=user.id, file_name=file.filename, **face_feature, **head_feature))
+    timestamp_str = file.filename.split(".jpg")[0]
+    timestamp = datetime.strptime(f"{timestamp_str}000", timestamp_format)
+    return crud.create_posture(db, PostureCreate(
+        **face_feature, **head_feature, **orientations,
+        user_id=user.id, file_name=file.filename, created_at=timestamp))
 
 
 @posture.put("/filename", response_model=Posture, responses=error_responses([UnauthorizedException, ForbiddenException]))
