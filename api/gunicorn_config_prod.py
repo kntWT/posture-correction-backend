@@ -24,6 +24,8 @@ raw_env = ['MODE=PROD']
 
 reload = True
 
+preload_app = True
+
 # エラーログ
 errorlog = './logs/error_log.txt'
 
