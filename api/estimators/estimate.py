@@ -26,14 +26,7 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str, f
     face_feature, head_feature = await estimate_feature_from_image(image, user_id, file_name)
     if face_feature is None or head_feature is None:
         return None
-    x, _ = parse_np([{
-        **face_feature,
-        **head_feature,
-        **features
-    }])
-    X = scaler.transform(x)
-    pred = sess.run(None, {"input": X.astype(np.float32)})[0]
-    return pred[0]
+    return estimate_from_features({**face_feature, **head_feature, **features})
 
 
 async def estimate_from_path(path: str, sub_path: int, file_name: str, features: dict):
@@ -48,6 +41,6 @@ async def estimate_from_path(path: str, sub_path: int, file_name: str, features:
 
 async def estimate_from_features(features: dict):
     x, _ = parse_np([features])
-    X = scaler.transform(x)
+    X = scaler.transform(x.T)
     pred = sess.run(None, {"input": X.astype(np.float32)})[0]
-    return pred[0]
+    return pred[0][0]
