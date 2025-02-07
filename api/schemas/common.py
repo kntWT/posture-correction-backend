@@ -8,6 +8,8 @@ class ResponseEx(BaseModel):
     timestamp: datetime
 
     def __init__(self, msg: str):
-        self.status = True
-        self.message = msg
-        self.timestamp = datetime.now(JST)
+        super().__init__(
+            status=True,
+            message=msg,
+            timestamp=datetime.now(JST)
+        )
