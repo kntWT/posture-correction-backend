@@ -19,55 +19,67 @@ import cv2
 import numpy as np
 import os
 from typing import Dict
+import copy
+import torch
+import torch.multiprocessing as mp
 
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 _image_dir = image_dir if image_dir is not None else "images"
 
-transformations = transforms.Compose([transforms.Resize(224),
-                                      transforms.CenterCrop(224),
-                                      transforms.ToTensor(),
-                                      transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+model = None
+transformations = None
+face_detector = None
+device = None
 
-gpu = 0
-cam = 0
-cudnn.enabled = True
-if (gpu < 0):
-    device = torch.device('cpu')
-else:
-    device = torch.device('cuda:%d' % gpu)
-    # device = torch.device("mps")
-snapshot_path = hf_hub_download(
-    repo_id="osanseviero/6DRepNet_300W_LP_AFLW2000", filename="model.pth")
-model = SixDRepNet(backbone_name='RepVGG-B1g2',
-                   backbone_file='',
-                   deploy=True,
-                   pretrained=False)
+def init_head_pose_estimator():
+    global model, transformations, face_detector, device
+    transformations = transforms.Compose([transforms.Resize(224),
+                                        transforms.CenterCrop(224),
+                                        transforms.ToTensor(),
+                                        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
-print('Loading data.')
+    gpu = 0
+    cudnn.enabled = True
+    if (gpu < 0):
+        device = torch.device('cpu')
+    else:
+        device = torch.device('cuda:%d' % gpu)
+        # device = torch.device("mps")
+    snapshot_path = hf_hub_download(
+        repo_id="osanseviero/6DRepNet_300W_LP_AFLW2000", filename="model.pth")
+    model = SixDRepNet(backbone_name='RepVGG-B1g2',
+                    backbone_file='',
+                    deploy=True,
+                    pretrained=False)
 
-detector = RetinaFace(0)
+    print('Loading data.')
 
-# Load snapshot
-saved_state_dict = torch.load(os.path.join(
-    snapshot_path), map_location='cpu')
+    face_detector = RetinaFace(0)
 
-if 'model_state_dict' in saved_state_dict:
-    model.load_state_dict(saved_state_dict['model_state_dict'])
-else:
-    model.load_state_dict(saved_state_dict)
-model.to(device)
+    # Load snapshot
+    saved_state_dict = torch.load(os.path.join(
+        snapshot_path), map_location='cpu')
 
-# Test the Model
-model.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
+    if 'model_state_dict' in saved_state_dict:
+        model.load_state_dict(saved_state_dict['model_state_dict'])
+    else:
+        model.load_state_dict(saved_state_dict)
+    model.to(device)
+    model.share_memory()
+
+    # Test the Model
+    model.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
 
 
-async def estimate_head_pose(img=None, sub_pash: str = "1", file_name: str = "no_name") -> Dict | None:
+def estimate_head_pose(
+        img=None, sub_pash: str = "1", file_name: str = "no_name"
+) -> Dict | None:
     if img is None:
         return None
 
-    faces = sorted(detector(img), key=lambda x: x[2], reverse=True)
+    faces = sorted(face_detector(img), key=lambda x: x[2], reverse=True)
     if len(faces) <= 0:
         # print("face cannot detected")
         return None
@@ -88,7 +100,7 @@ async def estimate_head_pose(img=None, sub_pash: str = "1", file_name: str = "no
     x_max = x_max+int(0.2*bbox_height)
     y_max = y_max+int(0.2*bbox_width)
 
-    canvas = img[y_min:y_max, x_min:x_max]
+    canvas = copy.deepcopy(img)[y_min:y_max, x_min:x_max]
     canvas = Image.fromarray(canvas)
     canvas = canvas.convert('RGB')
     canvas = transformations(canvas)

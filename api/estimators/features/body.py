@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 import torch
+import torch.multiprocessing as mp
 import sys
 import os
 from typing import Dict
@@ -23,16 +24,18 @@ sys.path.append("pytorch-openpose")
 from src import util
 from src.body import Body
 
-body_estimation = Body("pytorch-openpose/model/body_pose_model.pth")
+body_estimation = None
 
-gpu = 0
-cam = 0
-# デバイス取得
-if (gpu < 0):
-    device = torch.device('cpu')
-else:
-    device = torch.device('cuda:%d' % gpu)
-    # device = torch.device("mps")
+def init_body_pose_estimator():
+    global body_estimation
+    body_estimation = Body("pytorch-openpose/model/body_pose_model.pth")
+    gpu = 0
+    # デバイス取得
+    if (gpu < 0):
+        device = torch.device('cpu')
+    else:
+        device = torch.device('cuda:%d' % gpu)
+        # device = torch.device("mps")
 
 
 def parse_point(cand) -> Point:
@@ -43,7 +46,9 @@ def parse_point(cand) -> Point:
     }
 
 
-async def estimate_body_pose(img: np.ndarray = None, sub_path: str = "1", file_name: str = "no_name") -> Dict | None:
+def estimate_body_pose(
+        img: np.ndarray = None, sub_path: str = "1", file_name: str = "no_name",
+) -> Dict | None:
     if img is None:
         return None
     candidate, subset = body_estimation(img)
@@ -92,5 +97,5 @@ async def estimate_body_pose(img: np.ndarray = None, sub_path: str = "1", file_n
         "neck_x": neck["x"],
         "neck_y": neck["y"],
         "neck_to_nose": float(neck_to_nose),
-        "standard_dist": float(standard_dist)
+        "standard_distance": float(standard_dist)
     }
