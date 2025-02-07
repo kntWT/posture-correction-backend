@@ -220,7 +220,7 @@ def train(evaluate=False, output_figure=False):
     scaler = StandardScaler()
     Xs = scaler.fit_transform(np.concatenate(Xs))
     estimator.fit(Xs, Ys)
-    initial_type = [('float_input', FloatTensorType([None, Xs.shape[1]]))]
+    initial_type = [('input', FloatTensorType([None, Xs.shape[1]]))]
     onnx_model = skl2onnx.convert_sklearn(
         estimator, initial_types=initial_type)
 
