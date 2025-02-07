@@ -16,7 +16,7 @@ def get_posture_by_user_id(db: Session, user_id: int) -> list[Posture] | None:
 
 
 def create_posture(db: Session, posture: PostureCreate) -> Posture:
-    db.add(posture)
+    db.add(Model(**posture.model_dump()))
     db.commit()
     db.refresh(posture)
     return posture
