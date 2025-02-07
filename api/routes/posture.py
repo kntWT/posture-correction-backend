@@ -5,7 +5,8 @@ from schemas.user import User
 from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, NotFoundException, error_responses
 import cv2
 import cruds.posture as crud
-from configs.env import get_db, image_dir
+from configs.db import get_db
+from configs.env import image_dir
 from estimators.features.estimate import estimate_from_image as estimate_feature_from_image
 from estimators.estimate import estimate_from_image, estimate_from_features
 from guards.auth import login_auth, admin_auth
