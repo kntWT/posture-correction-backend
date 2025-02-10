@@ -16,10 +16,11 @@ def get_posture_by_user_id(db: Session, user_id: int) -> list[Posture] | None:
 
 
 def create_posture(db: Session, posture: PostureCreate) -> Posture:
-    db.add(Model(**posture.model_dump()))
+    p = Model(**posture.model_dump())
+    db.add(p)
     db.commit()
-    db.refresh(posture)
-    return posture
+    db.refresh(p)
+    return p
 
 
 def update_filename(db: Session, posture: PostureOnlyFilename) -> Posture:
