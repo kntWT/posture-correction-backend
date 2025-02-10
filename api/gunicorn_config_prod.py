@@ -1,3 +1,5 @@
+from helpers.multiprocessing import init_multiprocessing
+
 # 実行するPythonがあるパス
 pythonpath = './'
 
@@ -36,3 +38,6 @@ proc_name = 'posture_correction_api'
 accesslog = './logs/access_log.txt'
 
 loglevel = 'debug'
+
+def post_fork(server, worker):
+    init_multiprocessing()

@@ -6,7 +6,7 @@ from typing import List, Dict, Any, NoReturn
 import numpy as np
 import datetime
 from configs.env import image_dir
-from helpers.multiprocessing import run_in_process
+from helpers.multiprocessing import estimate_head_pose_in_process, estimate_body_pose_in_process
 
 # from estimators.body import estimate_body_pose
 # from estimators.face import estimate_head_pose
@@ -51,12 +51,11 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
         "sub_path": user_id,
         "file_name": file_name
     }
+    
     tasks: List[Any] = [
         loop.run_in_executor(
             None,
-            lambda: run_in_process(
-                estimate_body_pose,
-                init_body_pose_estimator,
+            lambda: estimate_body_pose_in_process(
                 base_args["img"],
                 base_args["sub_path"],
                 base_args["file_name"]
@@ -64,9 +63,7 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
         ),
         loop.run_in_executor(
             None,
-            lambda: run_in_process(
-                estimate_head_pose,
-                init_head_pose_estimator,
+            lambda: estimate_head_pose_in_process(
                 base_args["img"],
                 base_args["sub_path"],
                 base_args["file_name"]

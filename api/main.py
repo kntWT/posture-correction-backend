@@ -5,7 +5,8 @@ from multiprocessing import Process
 from helpers.multiprocessing import init_multiprocessing
 import sys
 from estimators.features.estimate import init_feature_estimators
-
+import os
+import multiprocessing as mp
 
 class AppWrapper(Application):
     def __init__(self, app, options=None):
@@ -31,7 +32,8 @@ def start_gunicorn():
 
 
 if __name__ == "__main__":
-    init_multiprocessing()
+    mp.set_start_method("spawn")
+    # init_multiprocessing()
     init_feature_estimators()
     start_gunicorn()
     # # シグナルハンドラを設定
