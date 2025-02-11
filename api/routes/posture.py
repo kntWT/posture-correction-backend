@@ -46,7 +46,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
     except json.JSONDecodeError:
-        return {"error": "Invalid JSON format"}
+        raise("Invalid JSON format")
 
     file_path = save_file(file.file, image_dir,
                           f"{user.id}/original", file.filename)
@@ -56,8 +56,11 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         raise BadRequestException("Failed to upload file")
     img = cv2.imread(file_path)
     face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename)
-    if face_feature is None or head_feature is None:
-        raise BadRequestException("Failed to estimate posture")
+    if face_feature is None:
+        raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにし、画面から離れて首元が映るようにしてください。")
+    if head_feature is None:
+        raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにしてください。")
+    
     neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations})
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
@@ -70,7 +73,7 @@ async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
     except json.JSONDecodeError:
-        return {"error": "Invalid JSON format"}
+       raise("Invalid JSON format")
     
     file_path = save_file(file.file, image_dir,
                           f"original/{user.id}", file.filename)
