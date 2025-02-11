@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from models.posture import Posture as Model
 from schemas.posture import Posture, PostureOnlyFace, PostureOnlyPosition, PostureOnlySensor, PostureOnlyFilename, PostureCreate
+from cruds.user import get_user_by_token
+from schemas.user import UserGetByToken
 
 
 def get_postures(db: Session) -> list[Posture]:
@@ -13,6 +15,10 @@ def get_posture_by_id(db: Session, posture_id: int) -> list[Posture] | None:
 
 def get_posture_by_user_id(db: Session, user_id: int) -> list[Posture] | None:
     return db.query(Model).filter(Model.user_id == user_id).all()
+
+def get_standard_posture_by_user_token(db: Session, token: str) -> Posture | None:
+    user = get_user_by_token(db, UserGetByToken(token=token))
+    return db.query(Model).filter(Model.id == user.standard_posture_id).one_or_none()
 
 
 def create_posture(db: Session, posture: PostureCreate) -> Posture:
