@@ -17,8 +17,8 @@ def init_multiprocessing():
     if estimate_head_pose_pool != None or estimate_body_pose_pool != None:
         print("init_multiprocessing: already initialized")
         return
-    estimate_head_pose_pool = mp.Pool(2, initializer=init_head_pose_estimator)
-    estimate_body_pose_pool = mp.Pool(2, initializer=init_body_pose_estimator)
+    estimate_head_pose_pool = mp.Pool(3, initializer=init_head_pose_estimator)
+    estimate_body_pose_pool = mp.Pool(3, initializer=init_body_pose_estimator)
     
 
 def estimate_head_pose_in_process(*args):
