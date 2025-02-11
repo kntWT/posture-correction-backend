@@ -81,13 +81,15 @@ async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...
         raise BadRequestException("Failed to upload file")
     img = cv2.imread(file_path)
     face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename)
-    if face_feature is None or head_feature is None:
-        raise BadRequestException("Failed to estimate posture")
+    if face_feature is None:
+        raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにし、画面から離れて首元が映るようにしてください。")
+    if head_feature is None:
+        raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにしてください。")
     timestamp_str = file.filename.split(".jpg")[0]
     timestamp = datetime.strptime(f"{timestamp_str}000", timestamp_format)
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
-        user_id=user.id, file_name=file.filename, created_at=timestamp))
+        user_id=user.id, file_name=file.filename, created_at=timestamp, neck_angle=None))
 
 
 @posture.put("/filename", response_model=Posture, responses=error_responses([UnauthorizedException, ForbiddenException]))
