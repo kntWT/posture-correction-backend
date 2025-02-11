@@ -38,7 +38,6 @@ class UserGetByToken(BaseModel):
 
 
 class UserCalibrate(BaseModel):
-    id: int
     standard_posture_id: int
 
 
