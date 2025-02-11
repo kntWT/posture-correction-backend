@@ -10,7 +10,8 @@ import copy
 import random
 import string
 
-from configs.env import image_dir
+from configs.env import image_dir, timestamp_format
+import datetime
 
 _image_dir = image_dir if image_dir is not None else "images"
 
@@ -91,6 +92,7 @@ def estimate_body_pose(
         [nose["x"], nose["y"]], [neck["x"], neck["y"]])
     standard_dist: float = math.dist([right_eye["x"], right_eye["y"]], [
                                      left_eye["x"], left_eye["y"]])
+    print(f"face estimated: {datetime.datetime.now().strftime(timestamp_format)}")
     return {
         "nose_x": nose["x"],
         "nose_y": nose["y"],

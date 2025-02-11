@@ -5,7 +5,7 @@ import asyncio
 from typing import List, Dict, Any, NoReturn
 import numpy as np
 import datetime
-from configs.env import image_dir
+from configs.env import image_dir, timestamp_format
 from helpers.multiprocessing import estimate_head_pose_in_process, estimate_body_pose_in_process
 
 # from estimators.body import estimate_body_pose
@@ -51,6 +51,7 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
         "sub_path": user_id,
         "file_name": file_name
     }
+    print(f"estimate start: {datetime.datetime.now().strftime(timestamp_format)}")
     
     tasks: List[Any] = [
         loop.run_in_executor(
@@ -71,11 +72,13 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
         ),
     ]
     face_feature, head_pose = await asyncio.gather(*tasks)
-    return face_feature, {
+    return [
+        face_feature,
+        None if head_pose is None else {
             "face_pitch": head_pose["pitch"],
             "face_roll": head_pose["roll"],
             "face_yaw": head_pose["yaw"]
-        }
+        }]
     # tasks.append(estimate_body_pose(image, user_id, file_name))
     # tasks.append(estimate_head_pose(image, user_id, file_name))
     # return await asyncio.gather(*tasks)

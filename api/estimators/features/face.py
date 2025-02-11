@@ -2,7 +2,7 @@
 # import math
 # import re
 # import sys
-from configs.env import image_dir
+from configs.env import image_dir, timestamp_format
 from sixdrepnet import utils
 from sixdrepnet.model import SixDRepNet
 from huggingface_hub import hf_hub_download
@@ -22,6 +22,8 @@ from typing import Dict
 import copy
 import torch
 import torch.multiprocessing as mp
+
+import datetime
 
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
@@ -121,6 +123,7 @@ def estimate_head_pose(
     save_dir: str = f"{_image_dir}/{sub_pash}/head"
     os.makedirs(save_dir, exist_ok=True)
     cv2.imwrite(f"{save_dir}/{file_name}", img)
+    print(f"head estimated: {datetime.datetime.now().strftime(timestamp_format)}")
     return {
         "pitch": float(pitch),
         "yaw": float(yaw),
