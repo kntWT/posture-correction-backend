@@ -52,9 +52,9 @@ def create_user_from_email(db: Session, _user: UserCreateEmail) -> User:
     return user
 
 
-def calibrate_user(db: Session, user: UserCalibrate) -> User:
-    user = db.query(Model).filter(Model.id == user.id).first()
-    user.standard_posture_id = user.standard_posture_id
+def calibrate_user(db: Session, _user: UserCalibrate, token: str) -> User:
+    user = get_user_by_token(db, UserGetByToken(token=token))
+    user.standard_posture_id = _user.standard_posture_id
     db.commit()
     db.refresh(user)
     return user

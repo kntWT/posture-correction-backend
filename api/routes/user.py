@@ -74,7 +74,7 @@ async def create_user(user: UserCreateEmail, response: Response, db: Session = D
 
 @user.put("/calibrate", response_model=User, responses=error_responses([UnauthorizedException]))
 async def calibrate_user(user: UserCalibrate, db: Session = Depends(get_db), _login: User = Depends(login_auth)):
-    return crud.calibrate_user(db, user)
+    return crud.calibrate_user(db, user, _login.token)
 
 
 @user.put("/update", response_model=User, responses=error_responses([UnauthorizedException]))
