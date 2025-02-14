@@ -34,7 +34,10 @@ def is_admin_by_token(db: Session, user: UserGetByToken) -> bool:
     return None if u is None else u.is_admin
 
 
-def create_user_from_basic(db: Session, _user: UserCreateBasic) -> User:
+def create_user_from_basic(db: Session, _user: UserCreateBasic) -> User | None:
+    exist_user = get_user_by_basic(db, UserBasicAuth(name=_user.name, password=_user.password))
+    if exist_user is not None:
+        return None
     user = Model(**_user.model_dump())
     user.token = str(secrets.token_hex())
     db.add(user)
@@ -43,7 +46,10 @@ def create_user_from_basic(db: Session, _user: UserCreateBasic) -> User:
     return user
 
 
-def create_user_from_email(db: Session, _user: UserCreateEmail) -> User:
+def create_user_from_email(db: Session, _user: UserCreateEmail) -> User | None:
+    exist_user = get_user_by_email(db, UserEmailAuth(email=_user.email))
+    if exist_user is not None:
+        return None
     user = Model(**_user.dict())
     user.token = str(secrets.token_hex())
     db.add(user)

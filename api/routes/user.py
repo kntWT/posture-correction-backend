@@ -57,16 +57,20 @@ async def is_exist_by_email(email: str, db: Session = Depends(get_db)):
 
 
 @user.post("/create/basic", response_model=User, responses=error_responses([BadRequestException]))
-async def create_user(user: UserCreateBasic, response: Response, db: Session = Depends(get_db)):
-    user: User = crud.create_user_from_basic(db, user)
+async def create_user(u: UserCreateBasic, response: Response, db: Session = Depends(get_db)):
+    user: User | None = crud.create_user_from_basic(db, u)
+    if user is None:
+        raise BadRequestException("given user has already exists")
     jwt_token = jwt.generate_token({"token": user.token})
     response.set_cookie(key=cookie_token_key, value=jwt_token)
     return user
 
 
 @user.post("/create/email", response_model=User, responses=error_responses([BadRequestException]))
-async def create_user(user: UserCreateEmail, response: Response, db: Session = Depends(get_db)):
-    user: User = crud.create_user_from_email(db, user)
+async def create_user(u: UserCreateEmail, response: Response, db: Session = Depends(get_db)):
+    user: User | None = crud.create_user_from_email(db, u)
+    if user is None:
+        raise BadRequestException("given user has already exists")
     jwt_token = jwt.generate_token({"token": user.token})
     response.set_cookie(key=cookie_token_key, value=jwt_token)
     return user
