@@ -81,7 +81,7 @@ async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...
        raise("Invalid JSON format")
     
     file_path = save_file(file.file, image_dir,
-                          f"original/{user.id}", file.filename)
+                          f"{user.id}/original", file.filename)
     if file_path is None:
         raise BadRequestException("Failed to upload file")
     img = cv2.imread(file_path)
