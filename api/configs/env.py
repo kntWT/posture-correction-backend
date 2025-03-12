@@ -23,6 +23,8 @@ model_dir = "estimators/model"
 evaluate_output_dir = "estimators/figures"
 train_data_dir = "estimators/data"
 
+process_pool_count = os.environ.get("PROCESS_POOL_COUNT", 2)
+
 os.makedirs(image_dir, exist_ok=True)
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(evaluate_output_dir, exist_ok=True)

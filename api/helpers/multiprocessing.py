@@ -3,6 +3,7 @@ from estimators.features.face import estimate_head_pose, init_head_pose_estimato
 from estimators.features.body import estimate_body_pose, init_body_pose_estimator
 # from helpers.synchronize import run_async_in_sync
 import os
+from configs.env import process_pool_count
 
 estimate_head_pose_pool = None
 estimate_body_pose_pool = None
@@ -17,8 +18,8 @@ def init_multiprocessing():
     if estimate_head_pose_pool != None or estimate_body_pose_pool != None:
         print("init_multiprocessing: already initialized")
         return
-    estimate_head_pose_pool = mp.Pool(3, initializer=init_head_pose_estimator)
-    estimate_body_pose_pool = mp.Pool(3, initializer=init_body_pose_estimator)
+    estimate_head_pose_pool = mp.Pool(process_pool_count, initializer=init_head_pose_estimator)
+    estimate_body_pose_pool = mp.Pool(process_pool_count, initializer=init_body_pose_estimator)
     
 
 def estimate_head_pose_in_process(*args):
