@@ -7,6 +7,16 @@ class User(BaseModel):
     name: str = ""
     password: str = ""
     email: str | None
+    token: str
+    is_admin: bool = False
+    standard_posture_id: int | None
+    created_at: datetime
+
+class UserWithoutToken(BaseModel):
+    id: int
+    name: str = ""
+    password: str = ""
+    email: str | None
     is_admin: bool = False
     standard_posture_id: int | None
     created_at: datetime

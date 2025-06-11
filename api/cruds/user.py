@@ -1,12 +1,12 @@
 import secrets
 from models.user import User as Model
-from schemas.user import User, UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId, UserBasicAuth, UserEmailAuth
+from schemas.user import User, UserWithoutToken, UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId, UserBasicAuth, UserEmailAuth
 from sqlalchemy.orm import Session
 
 
 def get_users(db: Session) -> list[User]:
     users = db.query(Model).all()
-    return [User(**u.to_dict()) for u in users]
+    return [UserWithoutToken(**u.to_dict()) for u in users]
 
 
 def get_user_by_id(db: Session, user: UserId) -> User | None:
