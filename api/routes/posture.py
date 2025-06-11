@@ -72,7 +72,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         user_id=user.id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
 
 
-@posture.post("/estimate/guest", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException]))
+@posture.post("/estimate/guest", response_model=Posture, responses=error_responses([BadRequestException]))
 async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), db: Session = Depends(get_db)):
     try:
         sensors_json = json.loads(sensors)
