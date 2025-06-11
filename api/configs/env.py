@@ -23,6 +23,8 @@ model_dir = "estimators/model"
 evaluate_output_dir = "estimators/figures"
 train_data_dir = "estimators/data"
 
+guest_id = 0
+
 # process_pool_count = os.environ.get("PROCESS_POOL_COUNT", 2)
 estimate_body_pose_pool_count = os.environ.get("ESTIMATE_BODY_POSE_POOL_COUNT", 4)
 estimate_head_pose_pool_count = os.environ.get("ESTIMATE_HEAD_POSE_POOL_COUNT", 4)
