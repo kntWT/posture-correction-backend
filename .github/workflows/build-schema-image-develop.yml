@@ -33,9 +33,9 @@ jobs:
 
       # OpenAPIスキーマをエクスポート
       - name: Export OpenAPI Schema
+        working-directory: api
         run: |
-          python api/scripts/export_openapi.py
-        # または `bash scripts/export_openapi.sh` を使用
+          python script.py openapi
 
       # Dockerのセットアップ
       - name: Set up Docker Buildx
