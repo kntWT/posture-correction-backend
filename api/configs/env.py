@@ -10,7 +10,7 @@ host = os.environ.get("MYSQL_HOST")
 
 # secret_key = os.environ.get("JWT_SECRET_KEY")
 # public_key = os.environ.get("JWT_PUBLIC_KEY")
-mock_secret_key = bool(os.environ.get("MOCK_SECRET_KEY", False))
+mock_secret_key = os.environ.get("MOCK_SECRET_KEY", "false") == "true"
 if not mock_secret_key:
     with open("./configs/keys/secret_key", "r") as f:
         secret_key = f.read()
