@@ -50,7 +50,7 @@ def create_user_from_email(db: Session, _user: UserCreateEmail) -> User | None:
     exist_user = get_user_by_email(db, UserEmailAuth(email=_user.email))
     if exist_user is not None:
         return None
-    user = Model(**_user.dict())
+    user = Model(**_user.model_dump())
     user.token = str(secrets.token_hex())
     db.add(user)
     db.commit()
