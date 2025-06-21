@@ -38,6 +38,7 @@ jobs:
         working-directory: api
         env:
           MOCK_SECRET_KEY: true
+          TRAIN_IF_NOT_EXIST: true
         run: |
           python script.py openapi
 

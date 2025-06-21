@@ -20,6 +20,8 @@ else:
     secret_key = None
     public_key = None
 
+train_if_not_exist = os.environ.get("TRAIN_IF_NOT_EXIST", "false") == "true"
+
 cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") or "token"
 
 image_dir = os.environ.get("IMAGE_DIR") or "images"
