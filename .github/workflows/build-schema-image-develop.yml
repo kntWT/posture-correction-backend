@@ -18,16 +18,14 @@ jobs:
       # コードのチェックアウト
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          submodules: true
 
       # Python環境のセットアップ
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
-
-      - name: Set up submodule
-        run: |
-          git submodule init
 
       # 必要な依存関係のインストール
       - name: Install dependencies
