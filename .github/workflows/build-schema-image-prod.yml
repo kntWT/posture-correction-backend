@@ -34,6 +34,8 @@ jobs:
       # OpenAPIスキーマをエクスポート
       - name: Export OpenAPI Schema
         working-directory: api
+        env:
+          MOCK_SECRET_KEY: true
         run: |
           python script.py openapi
 
