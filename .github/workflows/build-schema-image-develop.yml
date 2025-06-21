@@ -38,7 +38,7 @@ jobs:
         working-directory: api
         env:
           MOCK_SECRET_EKY: true
-          TRAIN_IF_NOT_EXIST: true
+          TRAIN_IF_NOT_EXIST: false
         run: |
           python script.py openapi
 

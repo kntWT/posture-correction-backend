@@ -20,7 +20,7 @@ else:
     secret_key = None
     public_key = None
 
-train_if_not_exist = os.environ.get("TRAIN_IF_NOT_EXIST", "false") == "true"
+train_if_not_exist = os.environ.get("TRAIN_IF_NOT_EXIST", "true") == "true"
 
 cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") or "token"
 
