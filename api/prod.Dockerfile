@@ -11,6 +11,7 @@ RUN apt update && \
     opencl-headers \
     libboost-all-dev \
     libopenblas-dev \
+    libglib2.0-0 \
     git \
     python3 \
     python3-pip \

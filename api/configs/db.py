@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import time
 
-from config.env import user, password, db_name, host
+from configs.env import user, password, db_name, host
 
 
 def connect_db(trial: int):
@@ -12,7 +12,7 @@ def connect_db(trial: int):
         return None, None, None
     try:
         engine = create_engine(
-            f'mysql+pymysql://{user}:{password}@{host}/{db_name}')
+            f'mysql+pymysql://{user}:{password}@{host}/{db_name}', echo=True)
         SessionLocal = sessionmaker(bind=engine)
         Base = declarative_base()
         return engine, SessionLocal, Base

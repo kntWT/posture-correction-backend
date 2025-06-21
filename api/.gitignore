@@ -162,6 +162,10 @@ cython_debug/
 #.idea/
 
 estimators/model/
+estimators/data/*.csv
 logs/
+images/
 prod.pid
 openapi/
+pytorch-openpose/
+configs/keys/

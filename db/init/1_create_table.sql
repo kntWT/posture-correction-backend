@@ -4,8 +4,8 @@ use posture_correction_db;
 
 create table if not exists users (
     id int primary key auto_increment,
-    username varchar(255) not null,
-    password varchar(255) not null,
+    name varchar(255) not null,
+    password varchar(255) not null default "",
     email varchar(255) default null,
     token varchar(255) default null,
     is_admin boolean default false,

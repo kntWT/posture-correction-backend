@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Double, DateTime
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.func import now
+from sqlalchemy.sql.functions import now
 from configs.db import Base
 
 
@@ -23,8 +23,11 @@ class Posture(Base):
     neck_to_nose = Column(Double, nullable=True)
     standard_distance = Column(Double, nullable=True)
     neck_angle = Column(Double, nullable=True)
-    created_at = Column(DateTime(TimeZone=True, server_default=now()))
+    created_at = Column(DateTime(timezone=True))
     updated_at = Column(
-        DateTime(TimeZone=True, server_default=now(), onupdate=now()))
+        DateTime(timezone=True), server_default=now(), onupdate=now())
 
     owner = relationship("User", back_populates="postures")
+
+    class Config:
+        orm_mode = True
