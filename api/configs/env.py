@@ -10,10 +10,15 @@ host = os.environ.get("MYSQL_HOST")
 
 # secret_key = os.environ.get("JWT_SECRET_KEY")
 # public_key = os.environ.get("JWT_PUBLIC_KEY")
-with open("./configs/keys/secret_key", "r") as f:
-    secret_key = f.read()
-with open("./configs/keys/public_key.pub", "r") as f:
-    public_key = f.read()
+mock_secret_key = bool(os.environ.get("MOCK_SECRET_KEY", False))
+if not mock_secret_key:
+    with open("./configs/keys/secret_key", "r") as f:
+        secret_key = f.read()
+    with open("./configs/keys/public_key.pub", "r") as f:
+        public_key = f.read()
+else:
+    secret_key = None
+    public_key = None
 
 cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") or "token"
 
