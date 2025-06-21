@@ -17,7 +17,7 @@ with open("./configs/keys/public_key.pub", "r") as f:
 
 cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") or "token"
 
-image_dir = os.environ.get("IMAGE_DIR")
+image_dir = os.environ.get("IMAGE_DIR") or "images"
 
 model_dir = "estimators/model"
 evaluate_output_dir = "estimators/figures"
