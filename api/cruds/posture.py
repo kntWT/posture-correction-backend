@@ -3,6 +3,7 @@ from models.posture import Posture as Model
 from schemas.posture import Posture, PostureOnlyFace, PostureOnlyPosition, PostureOnlySensor, PostureOnlyFilename, PostureCreate
 from cruds.user import get_user_by_token
 from schemas.user import UserGetByToken
+from datetime import datetime
 
 
 def get_postures(db: Session) -> list[Posture]:
@@ -68,3 +69,14 @@ def update_position(db: Session, posture: PostureOnlyPosition) -> Posture:
     db.commit()
     db.refresh(p)
     return p
+
+def get_postures_by_app_id_and_user_id(db: Session, app_id: str, user_id: int) -> list[Model]:
+    return db.query(Model).filter(Model.app_id == app_id, Model.user_id == user_id).all()
+
+def get_postures_by_app_id_and_user_id_and_time(db: Session, app_id: str, user_id: int, start_time: datetime, end_time: datetime) -> list[Model]:
+    return db.query(Model).filter(
+        Model.app_id == app_id,
+        Model.user_id == user_id,
+        Model.created_at >= start_time,
+        Model.created_at <= end_time
+    ).all()

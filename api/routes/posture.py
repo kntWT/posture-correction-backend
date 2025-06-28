@@ -13,6 +13,7 @@ from configs.env import image_dir, timestamp_format, guest_id
 from estimators.features.estimate import estimate_from_image as estimate_feature_from_image
 from estimators.estimate import estimate_from_image, estimate_from_features
 from guards.auth import login_auth, admin_auth
+from guards.app_id import require_app_id
 from helpers.save_file import save_file
 
 posture = APIRouter(prefix="/posture", tags=["posture"])
@@ -35,13 +36,13 @@ async def get_posture_by_user_id(user_id: int, db: Session = Depends(get_db), _l
     return crud.get_posture_by_user_id(db, user_id)
 
 
-@posture.post("/create", response_model=Posture, responses=error_responses([UnauthorizedException]))
-async def create_posture(posture: PostureCreate, db: Session = Depends(get_db), _login: User = Depends(login_auth)):
+@posture.post("/create", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def create_posture(posture: PostureCreate, db: Session = Depends(get_db), _login: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
     return crud.create_posture(db, posture)
 
 
-@posture.post("/estimate", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException]))
-async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+@posture.post("/estimate", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), app_id: str = Depends(require_app_id), db: Session = Depends(get_db), user: User = Depends(login_auth)):
     try:
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
@@ -69,11 +70,11 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations, "neck_to_nose_standard": neck_to_nose_standard })
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
-        user_id=user.id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
+        user_id=user.id, app_id=app_id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
 
 
-@posture.post("/estimate/guest", response_model=Posture, responses=error_responses([BadRequestException]))
-async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), db: Session = Depends(get_db)):
+@posture.post("/estimate/guest", response_model=Posture, responses=error_responses([BadRequestException, NotFoundException]))
+async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), app_id: str = Depends(require_app_id), db: Session = Depends(get_db)):
     try:
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
@@ -97,11 +98,11 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations, "neck_to_nose_standard": neck_to_nose_standard })
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
-        user_id=guest_id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
+        user_id=guest_id, app_id=app_id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
 
 
-@posture.post("/estimate/feature", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException]))
-async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+@posture.post("/estimate/feature", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...), app_id: str = Depends(require_app_id), db: Session = Depends(get_db), user: User = Depends(login_auth)):
     try:
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
@@ -122,7 +123,7 @@ async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...
     timestamp = datetime.strptime(f"{timestamp_str}000", timestamp_format)
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
-        user_id=user.id, file_name=file.filename, created_at=timestamp, neck_angle=None))
+        user_id=user.id, app_id=app_id, file_name=file.filename, created_at=timestamp, neck_angle=None))
 
 
 @posture.put("/filename", response_model=Posture, responses=error_responses([UnauthorizedException, ForbiddenException]))
@@ -143,3 +144,21 @@ async def update_face(posture: PostureOnlyFace, db: Session = Depends(get_db), _
 @posture.put("/position", response_model=Posture, responses=error_responses([UnauthorizedException, ForbiddenException]))
 async def update_position(posture: PostureOnlyPosition, db: Session = Depends(get_db), _admin: User = Depends(admin_auth)):
     return crud.update_position(db, posture)
+
+
+@posture.get("/app-id", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def get_my_postures_by_app_id(db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
+    return crud.get_postures_by_app_id_and_user_id(db, app_id, user.id)
+
+
+@posture.get("/by-app-id/admin/{user_id}", response_model=list[Posture], responses=error_responses([UnauthorizedException, ForbiddenException, BadRequestException, NotFoundException]))
+async def get_user_postures_by_app_id(user_id: int, db: Session = Depends(get_db), _admin: User = Depends(admin_auth), app_id: str = Depends(require_app_id)):
+    return crud.get_postures_by_app_id_and_user_id(db, app_id, user_id)
+
+
+@posture.get("/by-app-id/me/time", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def get_my_postures_by_app_id_and_time(start_time: datetime, end_time: datetime = None, db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
+    if end_time is None:
+        end_time = datetime.now()
+    return crud.get_postures_by_app_id_and_user_id_and_time(db, app_id, user.id, start_time, end_time)
+

@@ -7,6 +7,7 @@ import schemas.http_exception as HTTPException
 from schemas.common import ResponseEx
 from routes.user import user
 from routes.posture import posture
+from routes.project import project
 
 app = FastAPI()
 origins = [
@@ -62,7 +63,7 @@ async def intenal_server_errorhandler(request: Request, exc: HTTPException.Inter
 async def hello_world():
     return ResponseEx("hello world")
 
-routers_list = [user, posture]
+routers_list = [user, posture, project]
 
 for router in routers_list:
     app.include_router(router)

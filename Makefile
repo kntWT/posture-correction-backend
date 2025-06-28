@@ -17,22 +17,22 @@ docker-down-dev-v:
 	docker compose -f docker-compose.dev.yml down --volumes --rmi all
 
 docker-up-prod:
-	sudo docker compose -f docker-compose.prod.yml up -d
+	docker compose -f docker-compose.prod.yml up -d
 
 docker-build-prod:
-	sudo docker compose -f docker-compose.prod.yml up -d --build
+	docker compose -f docker-compose.prod.yml up -d --build
 
 docker-down-prod:
-	sudo docker compose -f docker-compose.prod.yml down --rmi all
+	docker compose -f docker-compose.prod.yml down --rmi all
 
 docker-down-prod-v:
-	sudo docker compose -f docker-compose.prod.yml down --volumes --rmi all
+	docker compose -f docker-compose.prod.yml down --volumes --rmi all
 
 docker-restart-prod:
-	sudo docker compose -f docker-compose.prod.yml restart
+	docker compose -f docker-compose.prod.yml restart
 
 docker-restart-api-prod:
-	sudo docker compose -f docker-compose.prod.yml restart api
+	docker compose -f docker-compose.prod.yml restart api
 
 refresh-db:
 	rm -rf db/data

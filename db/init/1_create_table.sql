@@ -17,6 +17,7 @@ create table if not exists users (
 create table if not exists postures (
     id int primary key auto_increment,
     user_id int not null,
+    aoo_id varchar(32) not null,
     file_name varchar(255) default "",
     sensor_alpha double not null,
     sensor_beta double not null,
@@ -34,4 +35,13 @@ create table if not exists postures (
     created_at timestamp(3) default current_timestamp(3),
     updated_at timestamp(3) default current_timestamp(3) on update current_timestamp(3),
     foreign key (user_id) references users(id)
+);
+
+create table if not exists projects (
+    id int primary key auto_increment,
+    app_id varchar(32) not null,
+    name text not null,
+    owner_user_token varchar(255) not null,
+    created_at timestamp default current_timestamp,
+    updated_at timestamp default current_timestamp
 );

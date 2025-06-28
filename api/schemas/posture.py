@@ -21,6 +21,7 @@ class Posture(BaseModel):
     standard_distance: float | None
     created_at: datetime | str | None
     updated_at: datetime | str
+    app_id: str
 
     @validator("created_at", "updated_at", pre=True)
     def format_timestamp(cls, v: datetime) -> str:
@@ -44,6 +45,7 @@ class PostureCreate(BaseModel):
     neck_to_nose: float | None
     standard_distance: float | None
     created_at: datetime | str
+    app_id: str
 
 
 class PostureOnlySensor(BaseModel):
