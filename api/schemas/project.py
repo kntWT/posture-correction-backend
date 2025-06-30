@@ -1,11 +1,11 @@
-from pydantic import BaseModel
 from datetime import datetime
+from schemas.common import CamelCaseModel
 
-class ProjectCreate(BaseModel):
+class ProjectCreate(CamelCaseModel):
     owner_user_token: str
     name: str
 
-class Project(BaseModel):
+class Project(CamelCaseModel):
     id: int
     app_id: str
     name: str
@@ -13,8 +13,8 @@ class Project(BaseModel):
     created_at: datetime
     updated_at: datetime 
 
-class ProjectGetByOwnerUserToken(BaseModel):
+class ProjectGetByOwnerUserToken(CamelCaseModel):
     owner_user_token: str
 
-class ProjectGetByAppId(BaseModel):
+class ProjectGetByAppId(CamelCaseModel):
     app_id: str

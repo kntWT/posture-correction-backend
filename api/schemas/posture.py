@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field, validator, AliasChoices
+from pydantic import Field, validator, AliasChoices
 from datetime import datetime
+from schemas.common import CamelCaseModel
 
 
-class Posture(BaseModel):
+class Posture(CamelCaseModel):
     id: int
     user_id: int
     file_name: str | None
@@ -28,7 +29,7 @@ class Posture(BaseModel):
         return v.strftime("%Y-%m-%d_%H:%M:%S.%f")
 
 
-class PostureCreate(BaseModel):
+class PostureCreate(CamelCaseModel):
     user_id: int
     file_name: str | None
     neck_angle: float | None
@@ -48,7 +49,7 @@ class PostureCreate(BaseModel):
     app_id: str
 
 
-class PostureOnlySensor(BaseModel):
+class PostureOnlySensor(CamelCaseModel):
     sensor_alpha: float | None = Field(validation_alias=AliasChoices(
         "alpha", "orientation_alpha", "orientationAlpha"))
     sensor_beta: float | None = Field(validation_alias=AliasChoices(
@@ -57,13 +58,13 @@ class PostureOnlySensor(BaseModel):
         "gamma", "orientation_gamma", "orientationGamma"))
 
 
-class PostureOnlyFace(BaseModel):
+class PostureOnlyFace(CamelCaseModel):
     face_pitch: float | None = Field(alias="pitch")
     face_yaw: float | None = Field(alias="yaw")
     face_roll: float | None = Field(alias="roll")
 
 
-class PostureOnlyPosition(BaseModel):
+class PostureOnlyPosition(CamelCaseModel):
     nose_x: float | None = Field(alias="noseX")
     nose_y: float | None = Field(alias="noseY")
     neck_x: float | None = Field(alias="neckX")
@@ -72,6 +73,6 @@ class PostureOnlyPosition(BaseModel):
     standard_distance: float | None = Field(alias="standardDist")
 
 
-class PostureOnlyFilename(BaseModel):
+class PostureOnlyFilename(CamelCaseModel):
     id: int | None
     file_name: str

@@ -1,6 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 from datetime import datetime
 from helpers.jst import JST
+
+class CamelCaseModel(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True
+    )
 
 class ResponseEx(BaseModel):
     status: bool

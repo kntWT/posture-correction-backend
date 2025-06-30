@@ -1,8 +1,8 @@
-from pydantic import BaseModel
 from datetime import datetime
+from schemas.common import CamelCaseModel
 
 
-class User(BaseModel):
+class User(CamelCaseModel):
     id: int
     name: str = ""
     password: str = ""
@@ -12,7 +12,7 @@ class User(BaseModel):
     standard_posture_id: int | None
     created_at: datetime
 
-class UserWithoutToken(BaseModel):
+class UserWithoutToken(CamelCaseModel):
     id: int
     name: str = ""
     password: str = ""
@@ -22,34 +22,34 @@ class UserWithoutToken(BaseModel):
     created_at: datetime
 
 
-class UserBasicAuth(BaseModel):
+class UserBasicAuth(CamelCaseModel):
     name: str
     password: str
 
 
-class UserEmailAuth(BaseModel):
+class UserEmailAuth(CamelCaseModel):
     email: str
 
 
-class UserCreateBasic(BaseModel):
+class UserCreateBasic(CamelCaseModel):
     name: str
     password: str
     is_admin: bool = False
 
 
-class UserCreateEmail(BaseModel):
+class UserCreateEmail(CamelCaseModel):
     email: str
     name: str
     is_admin: bool = False
 
 
-class UserGetByToken(BaseModel):
+class UserGetByToken(CamelCaseModel):
     token: str
 
 
-class UserCalibrate(BaseModel):
+class UserCalibrate(CamelCaseModel):
     standard_posture_id: int
 
 
-class UserId(BaseModel):
+class UserId(CamelCaseModel):
     id: int
