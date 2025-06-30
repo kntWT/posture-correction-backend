@@ -17,7 +17,7 @@ create table if not exists users (
 create table if not exists postures (
     id int primary key auto_increment,
     user_id int not null,
-    aoo_id varchar(32) not null,
+    app_id varchar(32) not null,
     file_name varchar(255) default "",
     sensor_alpha double not null,
     sensor_beta double not null,
