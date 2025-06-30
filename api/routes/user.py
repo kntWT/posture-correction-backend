@@ -16,11 +16,25 @@ user = APIRouter(prefix="/user", tags=["user"])
 async def get_users(db: Session = Depends(get_db), _admin: User = Depends(admin_auth)):
     return crud.get_users(db)
 
+@user.post("/auth/email", response_model=User, responses=error_responses([BadRequestException]))
+async def login_or_create_by_email(user_create: UserCreateEmail, response: Response, db: Session = Depends(get_db)):
+    exist_user = crud.get_user_by_email(db, UserEmailAuth(email=user_create.email))
+    if exist_user is not None:
+        return await login(response, exist_user)
+    return create_user_by_email(user_create, response, db)
+
+@user.post("/auth/basic", response_model=User, responses=error_responses([BadRequestException]))
+async def login_or_create_basic(user_create: UserCreateBasic, response: Response, db: Session = Depends(get_db)):
+    exist_user = crud.get_user_by_basic(db, UserBasicAuth(name=user_create.name, password=user_create.password))
+    if exist_user is not None:
+        return await login(response, exist_user)
+    return create_user_basic(user_create, response, db)
+
 
 @user.get("/login", response_model=Union[User, None], responses=error_responses([UnauthorizedException]))
 async def login(response: Response, _login: User = Depends(login_auth)):
-    jwt = jwt.generate_token({"token": _login.token})
-    response.set_cookie(key=cookie_token_key, value=jwt)
+    jwt_token = jwt.generate_token({"token": _login.token})
+    response.set_cookie(key=cookie_token_key, value=jwt_token)
     return _login
 
 
@@ -57,7 +71,7 @@ async def is_exist_by_email(email: str, db: Session = Depends(get_db)):
 
 
 @user.post("/create/basic", response_model=User, responses=error_responses([BadRequestException]))
-async def create_user(u: UserCreateBasic, response: Response, db: Session = Depends(get_db)):
+async def create_user_basic(u: UserCreateBasic, response: Response, db: Session = Depends(get_db)):
     user: User | None = crud.create_user_from_basic(db, u)
     if user is None:
         raise BadRequestException("given user has already exists")
@@ -67,7 +81,7 @@ async def create_user(u: UserCreateBasic, response: Response, db: Session = Depe
 
 
 @user.post("/create/email", response_model=User, responses=error_responses([BadRequestException]))
-async def create_user(u: UserCreateEmail, response: Response, db: Session = Depends(get_db)):
+async def create_user_by_email(u: UserCreateEmail, response: Response, db: Session = Depends(get_db)):
     user: User | None = crud.create_user_from_email(db, u)
     if user is None:
         raise BadRequestException("given user has already exists")
