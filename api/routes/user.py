@@ -21,14 +21,14 @@ async def login_or_create_by_email(user_create: UserCreateEmail, response: Respo
     exist_user = crud.get_user_by_email(db, UserEmailAuth(email=user_create.email))
     if exist_user is not None:
         return await login(response, exist_user)
-    return create_user_by_email(user_create, response, db)
+    return await create_user_by_email(user_create, response, db)
 
 @user.post("/auth/basic", response_model=User, responses=error_responses([BadRequestException]))
 async def login_or_create_basic(user_create: UserCreateBasic, response: Response, db: Session = Depends(get_db)):
     exist_user = crud.get_user_by_basic(db, UserBasicAuth(name=user_create.name, password=user_create.password))
     if exist_user is not None:
         return await login(response, exist_user)
-    return create_user_basic(user_create, response, db)
+    return await create_user_basic(user_create, response, db)
 
 
 @user.get("/login", response_model=Union[User, None], responses=error_responses([UnauthorizedException]))
