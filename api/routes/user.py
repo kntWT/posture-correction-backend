@@ -91,7 +91,7 @@ async def create_user_by_email(u: UserCreateEmail, response: Response, db: Sessi
 
 @user.post("/logout", response_model=bool, responses=error_responses([UnauthorizedException, TokenExpiredException]))
 async def logout(response: Response, u: User = Depends(login_auth)):
-    response.delete_cookie(cookie_token_key)
+    response.delete_cookie(key=cookie_token_key)
     return True
 
 
