@@ -6,7 +6,7 @@ load_dotenv(".env")
 user = os.environ.get("MYSQL_USER")
 password = os.environ.get("MYSQL_PASSWORD")
 db_name = os.environ.get("MYSQL_DATABASE")
-host = os.environ.get("MYSQL_HOST")
+host = os.environ.get("MYSQL_OUTSIDE_HOST")
 
 # secret_key = os.environ.get("JWT_SECRET_KEY")
 # public_key = os.environ.get("JWT_PUBLIC_KEY")
