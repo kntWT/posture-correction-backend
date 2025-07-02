@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 from schemas.user import User, UserCreateBasic, UserCreateEmail, UserCalibrate, UserBasicAuth, UserEmailAuth
-from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, error_responses
+from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, TokenExpiredException, error_responses
 import cruds.user as crud
 from typing import Union
 from sqlalchemy.orm import Session
@@ -88,6 +88,11 @@ async def create_user_by_email(u: UserCreateEmail, response: Response, db: Sessi
     jwt_token = jwt.generate_token({"token": user.token})
     response.set_cookie(key=cookie_token_key, value=jwt_token)
     return user
+
+@user.post("/logout", response_model=bool, responses=error_responses([UnauthorizedException, TokenExpiredException]))
+async def logout(response: Response, u: User = Depends(login_auth)):
+    response.delete_cookie(cookie_token_key)
+    return True
 
 
 @user.put("/calibrate", response_model=User, responses=error_responses([UnauthorizedException]))
