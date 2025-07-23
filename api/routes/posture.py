@@ -81,6 +81,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     except json.JSONDecodeError:
         raise("Invalid JSON format")
 
+    # print(f"request recieved: {datetime.now()}")
     file_path = save_file(file.file, image_dir,
                           f"{guest_id}/original", file.filename)
     timestamp_str = file.filename.split(".jpg")[0]
@@ -95,7 +96,9 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにしてください。")
     
     neck_to_nose_standard = 3.0
+    # print(f"neck angle estimate start: {datetime.now()}")
     neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations, "neck_to_nose_standard": neck_to_nose_standard })
+    # print(f"neck angle estimate finish: {datetime.now()}")
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
         user_id=guest_id, app_id=app_id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
