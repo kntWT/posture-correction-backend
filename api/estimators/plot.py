@@ -2,7 +2,7 @@ import japanize_matplotlib
 import matplotlib.pyplot as plt
 import os
 
-from configs.env import evaluate_output_dir
+from configs.estimator import evaluate_output_dir
 
 
 def plot_diff_by_y(y_train, y_train_pred, y_test, y_pred):
