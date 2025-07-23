@@ -26,9 +26,6 @@ cookie_token_key = os.environ.get("COOKIE_TOKEN_KEY") or "token"
 
 image_dir = os.environ.get("IMAGE_DIR") or "images"
 
-model_dir = "estimators/model"
-evaluate_output_dir = "estimators/figures"
-train_data_dir = "estimators/data"
 
 guest_id = 0
 
@@ -37,8 +34,5 @@ estimate_body_pose_pool_count = int(os.environ.get("ESTIMATE_BODY_POSE_POOL_COUN
 estimate_head_pose_pool_count = int(os.environ.get("ESTIMATE_HEAD_POSE_POOL_COUNT", 4))
 
 os.makedirs(image_dir, exist_ok=True)
-os.makedirs(model_dir, exist_ok=True)
-os.makedirs(evaluate_output_dir, exist_ok=True)
-os.makedirs(train_data_dir, exist_ok=True)
 
 timestamp_format = "%Y-%m-%d_%H:%M:%S.%f"
