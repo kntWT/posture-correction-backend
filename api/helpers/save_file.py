@@ -12,7 +12,7 @@ def save_image(image: np.ndarray, path: str, sub_path: str, file_name: str) -> N
 def save_file(file: bytes, path: str, sub_path: str, file_name: str) -> None:
     save_dir: str = os.path.join(path, sub_path)
     os.makedirs(save_dir, exist_ok=True)
-    file_path: str = os.path.join(save_dir, file_name)
+    file_path: str = os.path.join(save_dir, file_name.replace("/", "-").replace(" ", "_"))
     try:
         with open(file_path, "wb") as f:
             f.write(file.read())
