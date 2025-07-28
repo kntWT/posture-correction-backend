@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 from models.posture import Posture as Model
-from schemas.posture import Posture, PostureOnlyFace, PostureOnlyPosition, PostureOnlySensor, PostureOnlyFilename, PostureCreate
+from schemas.posture import Posture, PostureOnlyFace, PostureOnlyPosition, PostureOnlySensor, PostureOnlyFilename, PostureCreate, PostureStats
 from cruds.user import get_user_by_token
 from schemas.user import UserGetByToken
 from datetime import datetime
+import numpy as np
 
 
 def get_postures(db: Session) -> list[Posture]:
@@ -80,3 +81,37 @@ def get_postures_by_app_id_and_user_id_and_time(db: Session, app_id: str, user_i
         Model.created_at >= start_time,
         Model.created_at <= end_time
     ).all()
+
+
+def get_posture_stats(db: Session, app_id: str, user_id: int, threshold: int, start_time: datetime = None, end_time: datetime = None) -> PostureStats:
+    query = db.query(Model).filter(
+        Model.app_id == app_id,
+        Model.user_id == user_id,
+        Model.neck_angle.isnot(None)
+    )
+    if start_time and end_time:
+        query = query.filter(
+            Model.created_at >= start_time,
+            Model.created_at <= end_time
+        )
+    
+    postures = query.all()
+    
+    count = len(postures)
+    if count == 0:
+        return PostureStats(count=0, neck_angle_avg=None, neck_angle_std=None, good_posture_rate=None)
+    
+    neck_angles = [p.neck_angle for p in postures]
+    
+    neck_angle_avg = np.mean(neck_angles)
+    neck_angle_std = np.std(neck_angles)
+    
+    good_posture_count = sum(1 for angle in neck_angles if angle <= threshold)
+    good_posture_rate = good_posture_count / count if count > 0 else 0
+    
+    return PostureStats(
+        count=count,
+        neck_angle_avg=neck_angle_avg,
+        neck_angle_std=neck_angle_std,
+        good_posture_rate=good_posture_rate
+    )

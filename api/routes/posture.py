@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, File, UploadFile, Form, Body
+from fastapi import APIRouter, Depends, File, UploadFile, Form, Body, Query
 from sqlalchemy.orm import Session
-from schemas.posture import Posture, PostureCreate, PostureOnlySensor, PostureOnlyFace, PostureOnlyPosition, PostureOnlyFilename
+from schemas.posture import Posture, PostureCreate, PostureOnlySensor, PostureOnlyFace, PostureOnlyPosition, PostureOnlyFilename, PostureStats
 from schemas.user import User
 from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, NotFoundException, error_responses
 import cv2
@@ -168,3 +168,18 @@ async def get_my_postures_by_app_id_and_time(start_time: datetime, end_time: dat
 async def get_user_postures_by_app_id(user_id: int, db: Session = Depends(get_db), _admin: User = Depends(admin_auth), app_id: str = Depends(require_app_id)):
     return crud.get_postures_by_app_id_and_user_id(db, app_id, user_id)
 
+
+@posture.get("/app/stats/admin/{user_id}", response_model=PostureStats, responses=error_responses([UnauthorizedException, ForbiddenException, BadRequestException, NotFoundException]))
+async def get_user_posture_stats_by_app_id(user_id: int, threshold: int = Query(30, ge=0, le=90), db: Session = Depends(get_db), _admin: User = Depends(admin_auth), app_id: str = Depends(require_app_id)):
+    return crud.get_posture_stats(db, app_id, user_id, threshold)
+
+
+@posture.get("/app/stats", response_model=PostureStats, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def get_my_posture_stats_by_app_id(threshold: int = Query(30, ge=0, le=90), db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
+    return crud.get_posture_stats(db, app_id, user.id, threshold)
+
+
+@posture.get("/app/stats/between", response_model=PostureStats, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def get_my_posture_stats_by_app_id_and_time(start_time: datetime, end_time: datetime = None, threshold: int = Query(30, ge=0, le=90), db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
+    _end_time = end_time if end_time is not None else datetime.now()
+    return crud.get_posture_stats(db, app_id, user.id, threshold, start_time, _end_time)

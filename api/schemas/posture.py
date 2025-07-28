@@ -76,3 +76,10 @@ class PostureOnlyPosition(CamelCaseModel):
 class PostureOnlyFilename(CamelCaseModel):
     id: int | None
     file_name: str
+
+
+class PostureStats(CamelCaseModel):
+    count: int
+    neck_angle_avg: float | None
+    neck_angle_std: float | None
+    good_posture_rate: float | None
