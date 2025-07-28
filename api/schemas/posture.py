@@ -83,3 +83,8 @@ class PostureStats(CamelCaseModel):
     neck_angle_avg: float | None
     neck_angle_std: float | None
     good_posture_rate: float | None
+
+
+class PostureRankingItem(PostureStats):
+    user_name: str
+    rank: int

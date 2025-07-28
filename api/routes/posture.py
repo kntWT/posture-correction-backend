@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, File, UploadFile, Form, Body, Query
 from sqlalchemy.orm import Session
-from schemas.posture import Posture, PostureCreate, PostureOnlySensor, PostureOnlyFace, PostureOnlyPosition, PostureOnlyFilename, PostureStats
+from schemas.posture import Posture, PostureCreate, PostureOnlySensor, PostureOnlyFace, PostureOnlyPosition, PostureOnlyFilename, PostureStats, PostureRankingItem
 from schemas.user import User
 from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, NotFoundException, error_responses
 import cv2
@@ -183,3 +183,16 @@ async def get_my_posture_stats_by_app_id(threshold: int = Query(30, ge=0, le=90)
 async def get_my_posture_stats_by_app_id_and_time(start_time: datetime, end_time: datetime = None, threshold: int = Query(30, ge=0, le=90), db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
     _end_time = end_time if end_time is not None else datetime.now()
     return crud.get_posture_stats(db, app_id, user.id, threshold, start_time, _end_time)
+
+
+@posture.get("/app/ranking", response_model=list[PostureRankingItem], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+async def get_posture_ranking(
+    limit: int = Query(None, ge=1), 
+    threshold: int = Query(30, ge=0, le=90), 
+    start_time: datetime = None,
+    end_time: datetime = None,
+    db: Session = Depends(get_db), 
+    _user: User = Depends(login_auth), 
+    app_id: str = Depends(require_app_id)
+):
+    return crud.get_posture_ranking(db, app_id, threshold, limit, start_time, end_time)
