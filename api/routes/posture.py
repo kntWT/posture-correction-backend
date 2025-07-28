@@ -31,14 +31,18 @@ async def get_posture_by_id(posture_id: int, db: Session = Depends(get_db), _log
         raise NotFoundException("No posture found")
 
 
-@posture.get("/user/{user_id}", response_model=list[Posture], responses=error_responses([UnauthorizedException]))
+@posture.get("/user", response_model=list[Posture], responses=error_responses([UnauthorizedException]))
 async def get_posture_by_user_id(user_id: int, db: Session = Depends(get_db), _login: User = Depends(login_auth)):
+    return crud.get_posture_by_user_id(db, user_id)
+
+@posture.get("/user/admin", response_model=list[Posture], responses=error_responses([UnauthorizedException]))
+async def get_posture_by_user_id(user_id: int, db: Session = Depends(get_db), _admin: User = Depends(admin_auth)):
     return crud.get_posture_by_user_id(db, user_id)
 
 
 @posture.post("/create", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
 async def create_posture(posture: PostureCreate, db: Session = Depends(get_db), _login: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
-    return crud.create_posture(db, posture)
+    return crud.create_posture(db, PostureCreate(**posture, app_id=app_id))
 
 
 @posture.post("/estimate", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
