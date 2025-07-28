@@ -161,7 +161,6 @@ async def get_user_postures_by_app_id(user_id: int, db: Session = Depends(get_db
 
 @posture.get("/app/me/time", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
 async def get_my_postures_by_app_id_and_time(start_time: datetime, end_time: datetime = None, db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
-    if end_time is None:
-        end_time = datetime.now()
-    return crud.get_postures_by_app_id_and_user_id_and_time(db, app_id, user.id, start_time, end_time)
+    _end_time = end_time if end_time is None else datetime.now()
+    return crud.get_postures_by_app_id_and_user_id_and_time(db, app_id, user.id, start_time, _end_time)
 
