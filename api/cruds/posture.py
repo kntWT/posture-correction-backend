@@ -89,9 +89,12 @@ def get_posture_stats(db: Session, app_id: str, user_id: int, threshold: int, st
         Model.user_id == user_id,
         Model.neck_angle.isnot(None)
     )
-    if start_time and end_time:
+    if start_time:
         query = query.filter(
-            Model.created_at >= start_time,
+            Model.created_at >= start_time
+        )
+    if end_time:
+        query = query.filter(
             Model.created_at <= end_time
         )
     
