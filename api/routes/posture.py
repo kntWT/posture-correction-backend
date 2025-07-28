@@ -149,17 +149,17 @@ async def update_position(posture: PostureOnlyPosition, db: Session = Depends(ge
     return crud.update_position(db, posture)
 
 
-@posture.get("/app-id", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+@posture.get("/app", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
 async def get_my_postures_by_app_id(db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
     return crud.get_postures_by_app_id_and_user_id(db, app_id, user.id)
 
 
-@posture.get("/by-app-id/admin/{user_id}", response_model=list[Posture], responses=error_responses([UnauthorizedException, ForbiddenException, BadRequestException, NotFoundException]))
+@posture.get("/app/admin/{user_id}", response_model=list[Posture], responses=error_responses([UnauthorizedException, ForbiddenException, BadRequestException, NotFoundException]))
 async def get_user_postures_by_app_id(user_id: int, db: Session = Depends(get_db), _admin: User = Depends(admin_auth), app_id: str = Depends(require_app_id)):
     return crud.get_postures_by_app_id_and_user_id(db, app_id, user_id)
 
 
-@posture.get("/by-app-id/me/time", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
+@posture.get("/app/me/time", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
 async def get_my_postures_by_app_id_and_time(start_time: datetime, end_time: datetime = None, db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
     if end_time is None:
         end_time = datetime.now()
