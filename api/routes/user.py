@@ -34,19 +34,17 @@ async def login_or_create_basic(user_create: UserCreateBasic, response: Response
 @user.get("/login", response_model=Union[User, None], responses=error_responses([UnauthorizedException]))
 async def login(response: Response, _login: User = Depends(login_auth)):
     jwt_token = jwt.generate_token({"token": _login.token})
-    response.set_cookie(key=cookie_token_key, value=jwt_token)
+    response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
     return _login
 
 
 @user.get("/login/basic", response_model=Union[User, None], responses=error_responses([UnauthorizedException]))
 async def login_by_basic(name: str, password: str, response: Response, db: Session = Depends(get_db)):
-    print(name, password)
     user: User = crud.get_user_by_basic(
         db, UserBasicAuth(name=name, password=password))
     if user is not None:
         jwt_token = jwt.generate_token({"token": user.token})
-        print(jwt_token)
-        response.set_cookie(key=cookie_token_key, value=jwt_token)
+        response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
     return user
 
 
@@ -56,7 +54,7 @@ async def login_by_email(email: str, response: Response, db: Session = Depends(g
         db, UserEmailAuth(email=email))
     if user is not None:
         jwt_token = jwt.generate_token({"token": user.token})
-        response.set_cookie(key=cookie_token_key, value=jwt_token)
+        response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
     return user
 
 
@@ -76,7 +74,7 @@ async def create_user_basic(u: UserCreateBasic, response: Response, db: Session 
     if user is None:
         raise BadRequestException("given user has already exists")
     jwt_token = jwt.generate_token({"token": user.token})
-    response.set_cookie(key=cookie_token_key, value=jwt_token)
+    response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
     return user
 
 
@@ -86,7 +84,7 @@ async def create_user_by_email(u: UserCreateEmail, response: Response, db: Sessi
     if user is None:
         raise BadRequestException("given user has already exists")
     jwt_token = jwt.generate_token({"token": user.token})
-    response.set_cookie(key=cookie_token_key, value=jwt_token)
+    response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
     return user
 
 @user.post("/logout", response_model=bool, responses=error_responses([UnauthorizedException, TokenExpiredException]))
