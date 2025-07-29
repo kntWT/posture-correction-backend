@@ -154,14 +154,8 @@ async def update_position(posture: PostureOnlyPosition, db: Session = Depends(ge
 
 
 @posture.get("/app", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
-async def get_my_postures_by_app_id(db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
-    return crud.get_postures_by_app_id_and_user_id(db, app_id, user.id)
-
-
-@posture.get("/app/between", response_model=list[Posture], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
-async def get_my_postures_by_app_id_and_time(start_time: datetime, end_time: datetime = None, db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
-    _end_time = end_time if end_time is None else datetime.now()
-    return crud.get_postures_by_app_id_and_user_id_and_time(db, app_id, user.id, start_time, _end_time)
+async def get_my_postures_by_app_id(start_time: datetime, end_time: datetime = None, db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
+    return crud.get_postures_by_app_id_and_user_id(db, app_id, user.id, start_time, end_time)
 
 
 @posture.get("/app/admin/{user_id}", response_model=list[Posture], responses=error_responses([UnauthorizedException, ForbiddenException, BadRequestException, NotFoundException]))
@@ -175,14 +169,8 @@ async def get_user_posture_stats_by_app_id(user_id: int, threshold: int = Query(
 
 
 @posture.get("/app/stats", response_model=PostureStats, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
-async def get_my_posture_stats_by_app_id(threshold: int = Query(30, ge=0, le=90), db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
-    return crud.get_posture_stats(db, app_id, user.id, threshold)
-
-
-@posture.get("/app/stats/between", response_model=PostureStats, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
-async def get_my_posture_stats_by_app_id_and_time(start_time: datetime, end_time: datetime = None, threshold: int = Query(30, ge=0, le=90), db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
-    _end_time = end_time if end_time is not None else datetime.now()
-    return crud.get_posture_stats(db, app_id, user.id, threshold, start_time, _end_time)
+async def get_my_posture_stats_by_app_id(start_time: datetime = None, end_time: datetime = None, threshold: int = Query(30, ge=0, le=90), db: Session = Depends(get_db), user: User = Depends(login_auth), app_id: str = Depends(require_app_id)):
+    return crud.get_posture_stats(db, app_id, user.id, threshold, start_time, end_time)
 
 
 @posture.get("/app/ranking", response_model=list[PostureRankingItem], responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))

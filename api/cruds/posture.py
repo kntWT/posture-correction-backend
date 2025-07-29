@@ -73,16 +73,13 @@ def update_position(db: Session, posture: PostureOnlyPosition) -> Posture:
     db.refresh(p)
     return p
 
-def get_postures_by_app_id_and_user_id(db: Session, app_id: str, user_id: int) -> list[Model]:
-    return db.query(Model).filter(Model.app_id == app_id, Model.user_id == user_id).all()
-
-def get_postures_by_app_id_and_user_id_and_time(db: Session, app_id: str, user_id: int, start_time: datetime, end_time: datetime) -> list[Model]:
-    return db.query(Model).filter(
-        Model.app_id == app_id,
-        Model.user_id == user_id,
-        Model.created_at >= start_time,
-        Model.created_at <= end_time
-    ).all()
+def get_postures_by_app_id_and_user_id(db: Session, app_id: str, user_id: int, start_time: datetime = None, end_time: datetime = None) -> list[Model]:
+    query =  db.query(Model).filter(Model.app_id == app_id, Model.user_id == user_id)
+    if start_time:
+        query = query.filter(Model.created_at >= start_time)
+    if end_time:
+        query = query.filter(Model.created_at <= end_time)
+    return query.all()
 
 
 def get_posture_stats(db: Session, app_id: str, user_id: int, threshold: int, start_time: datetime = None, end_time: datetime = None) -> PostureStats:
