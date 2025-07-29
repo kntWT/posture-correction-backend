@@ -8,72 +8,72 @@ import math
 
 def unify_rotation_order(_alpha, _beta, _gamma):
     # NOTE: alphaとgammaが逆転しているが、特徴量に入れる入れない問わず順番を変えるとおかしくなる
-    # quat = Rotation.from_euler(
-    #     "zxy", np.column_stack([_alpha, _beta, _gamma]), degrees=True
+    quat = Rotation.from_euler(
+        "zxy", np.column_stack([_alpha, _beta, _gamma]), degrees=True
+    )
+    # mat = quat.as_matrix()
+    # .as_euler(
+    #     "xyz", degrees=True
     # )
-    # # mat = quat.as_matrix()
-    # # .as_euler(
-    # #     "xyz", degrees=True
-    # # )
-    # # beta = rots[:, 0]
-    # # gamma = rots[:, 1]
-    # # alpha = rots[:, 2]
-    # alpha = quat.as_euler("zxy", degrees=True)[:, 0]
-    # beta = quat.as_euler("xzy", degrees=True)[:, 0]
-    # gamma = quat.as_euler("yxz", degrees=True)[:, 0]
-    # return {"alpha": alpha, "beta": beta, "gamma": gamma}
-    """
-    デバイスの向きを、垂直持ちを基準とした角度に変換する。
+    # beta = rots[:, 0]
+    # gamma = rots[:, 1]
+    # alpha = rots[:, 2]
+    alpha = quat.as_euler("zxy", degrees=True)[:, 0]
+    beta = quat.as_euler("xzy", degrees=True)[:, 0]
+    gamma = quat.as_euler("yxz", degrees=True)[:, 0]
+    return {"alpha": alpha, "beta": beta, "gamma": gamma}
+    # """
+    # デバイスの向きを、垂直持ちを基準とした角度に変換する。
 
-    Args:
-        alpha_in: センサーから取得したalpha値の配列
-        beta_in: センサーから取得したbeta値の配列
-        gamma_in: センサーから取得したgamma値の配列
+    # Args:
+    #     alpha_in: センサーから取得したalpha値の配列
+    #     beta_in: センサーから取得したbeta値の配列
+    #     gamma_in: センサーから取得したgamma値の配列
 
-    Returns:
-        垂直状態を基準とした 'yaw', 'pitch', 'roll' のndarrayを含む辞書
-    """
-    #
-    # --- ステップ1: 理想の「ゼロ姿勢」を定義 ---
-    #
-    # スマートフォンを垂直に立てた状態（X軸で-90度回転）
-    r_zero_pose = Rotation.from_euler('x', -90, degrees=True)
+    # Returns:
+    #     垂直状態を基準とした 'yaw', 'pitch', 'roll' のndarrayを含む辞書
+    # """
+    # #
+    # # --- ステップ1: 理想の「ゼロ姿勢」を定義 ---
+    # #
+    # # スマートフォンを垂直に立てた状態（X軸で-90度回転）
+    # r_zero_pose = Rotation.from_euler('x', -90, degrees=True)
 
-    #
-    # --- ステップ2: 現在のセンサー値からRotationオブジェクトを生成 ---
-    #
-    # 入力をNumPy配列に変換
-    alpha_np = np.asarray(_alpha)
-    beta_np = np.asarray(_beta)
-    gamma_np = np.asarray(_gamma)
+    # #
+    # # --- ステップ2: 現在のセンサー値からRotationオブジェクトを生成 ---
+    # #
+    # # 入力をNumPy配列に変換
+    # alpha_np = np.asarray(_alpha)
+    # beta_np = np.asarray(_beta)
+    # gamma_np = np.asarray(_gamma)
 
-    # Scipyが扱いやすいように、(N, 3)の配列にスタックする
-    euler_angles_raw = np.stack([alpha_np, beta_np, gamma_np], axis=-1)
+    # # Scipyが扱いやすいように、(N, 3)の配列にスタックする
+    # euler_angles_raw = np.stack([alpha_np, beta_np, gamma_np], axis=-1)
     
-    # 現在のセンサー値から、デバイス全体の向きを表現
-    r_current = Rotation.from_euler('ZXY', euler_angles_raw, degrees=True)
+    # # 現在のセンサー値から、デバイス全体の向きを表現
+    # r_current = Rotation.from_euler('ZXY', euler_angles_raw, degrees=True)
 
-    #
-    # --- ステップ3: 「ゼロ姿勢」からの相対的な変化を計算 ---
-    #
-    # 垂直状態を基準とした場合の、現在の傾きを計算
-    r_relative = r_current * r_zero_pose.inv()
+    # #
+    # # --- ステップ3: 「ゼロ姿勢」からの相対的な変化を計算 ---
+    # #
+    # # 垂直状態を基準とした場合の、現在の傾きを計算
+    # r_relative = r_current * r_zero_pose.inv()
 
-    #
-    # --- ステップ4: 相対的な向きから、新しいオイラー角を抽出 ---
-    #
-    # 'YXZ'の順で、直感的な[ロール, ピッチ, ヨー]を取得
-    new_angles = r_relative.as_euler('YXZ', degrees=True)
+    # #
+    # # --- ステップ4: 相対的な向きから、新しいオイラー角を抽出 ---
+    # #
+    # # 'YXZ'の順で、直感的な[ロール, ピッチ, ヨー]を取得
+    # new_angles = r_relative.as_euler('YXZ', degrees=True)
 
-    # 結果を分かりやすいキーで辞書に格納して返す
-    # new_anglesは (N, 3) の形状なので、各列を抽出する
-    result = {
-        "roll": new_angles[..., 0],  # 左右のひねり
-        "pitch": new_angles[..., 1], # 前後の傾き
-        "yaw": new_angles[..., 2],   # 左右の向き
-    }
+    # # 結果を分かりやすいキーで辞書に格納して返す
+    # # new_anglesは (N, 3) の形状なので、各列を抽出する
+    # result = {
+    #     "gamma": new_angles[..., 0],  # 左右のひねり
+    #     "beta": new_angles[..., 1], # 前後の傾き
+    #     "alpha": new_angles[..., 2],   # 左右の向き
+    # }
     
-    return result
+    # return result
 
 
 def parse_np(data, mode="trees"):
