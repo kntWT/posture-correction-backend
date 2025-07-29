@@ -18,6 +18,8 @@ class Posture(CamelCaseModel):
     nose_y: float | None
     neck_x: float | None
     neck_y: float | None
+    image_width: float | None
+    image_height: float | None
     neck_to_nose: float | None
     standard_distance: float | None
     created_at: datetime | str | None
@@ -43,6 +45,8 @@ class PostureCreate(CamelCaseModel):
     nose_y: float | None
     neck_x: float | None
     neck_y: float | None
+    image_width: float | None = None
+    image_height: float | None = None
     neck_to_nose: float | None
     standard_distance: float | None
     created_at: datetime | str
@@ -69,6 +73,8 @@ class PostureOnlyPosition(CamelCaseModel):
     nose_y: float | None = Field(alias="noseY")
     neck_x: float | None = Field(alias="neckX")
     neck_y: float | None = Field(alias="neckY")
+    image_width: float | None = Field(default=None, alias="imageWidth")
+    image_height: float | None = Field(default=None, alias="imageHeight")
     neck_to_nose: float | None = Field(alias="neckToNose")
     standard_distance: float | None = Field(alias="standardDist")
 

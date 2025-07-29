@@ -20,6 +20,8 @@ class Posture(Base):
     nose_y = Column(Double, nullable=True)
     neck_x = Column(Double, nullable=True)
     neck_y = Column(Double, nullable=True)
+    image_width = Column(Double, nullable=True)
+    image_height = Column(Double, nullable=True)
     neck_to_nose = Column(Double, nullable=True)
     standard_distance = Column(Double, nullable=True)
     neck_angle = Column(Double, nullable=True)

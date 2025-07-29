@@ -72,9 +72,10 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     
     neck_to_nose_standard = standard_posture.neck_to_nose / standard_posture.standard_distance
     neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations, "neck_to_nose_standard": neck_to_nose_standard })
+    height, width, _channel = img.shape
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
-        user_id=user.id, app_id=app_id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
+        user_id=user.id, app_id=app_id, file_name=file.filename, image_width=width, image_height=height, neck_angle=neck_angle, created_at=timestamp))
 
 
 @posture.post("/estimate/guest", response_model=Posture, responses=error_responses([BadRequestException, NotFoundException]))
@@ -103,9 +104,10 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     # print(f"neck angle estimate start: {datetime.now()}")
     neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations, "neck_to_nose_standard": neck_to_nose_standard })
     # print(f"neck angle estimate finish: {datetime.now()}")
+    height, width, _channel = img.shape
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
-        user_id=guest_id, app_id=app_id, file_name=file.filename, neck_angle=neck_angle, created_at=timestamp))
+        user_id=guest_id, app_id=app_id, file_name=file.filename, image_width=width, image_height=height, neck_angle=neck_angle, created_at=timestamp))
 
 
 @posture.post("/estimate/feature", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
@@ -128,9 +130,10 @@ async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにしてください。")
     timestamp_str = file.filename.split(".jpg")[0]
     timestamp = datetime.strptime(f"{timestamp_str}000", timestamp_format)
+    height, width, _channel = img.shape
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
-        user_id=user.id, app_id=app_id, file_name=file.filename, created_at=timestamp, neck_angle=None))
+        user_id=user.id, app_id=app_id, file_name=file.filename, image_width=width, image_height=height, created_at=timestamp, neck_angle=None))
 
 
 @posture.put("/filename", response_model=Posture, responses=error_responses([UnauthorizedException, ForbiddenException]))
