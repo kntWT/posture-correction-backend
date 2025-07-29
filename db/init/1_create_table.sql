@@ -29,6 +29,8 @@ create table if not exists postures (
     nose_y double,
     neck_x double,
     neck_y double,
+    image_width double,
+    image_height double,
     neck_to_nose double,
     standard_distance double,
     neck_angle double,
