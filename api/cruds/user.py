@@ -1,6 +1,6 @@
 import secrets
 from models.user import User as Model
-from schemas.user import User, UserWithoutToken, UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId, UserBasicAuth, UserEmailAuth
+from schemas.user import User, UserWithoutToken, UserCreateBasic, UserCreateEmail, UserGetByToken, UserCalibrate, UserId, UserBasicAuth, UserEmailAuth, UserUpdate
 from sqlalchemy.orm import Session
 
 
@@ -66,11 +66,13 @@ def calibrate_user(db: Session, _user: UserCalibrate, token: str) -> User:
     return user
 
 
-def update_user(db: Session, user: User) -> User:
-    u = get_user_by_token(db, UserGetByToken(token=user.token))
-    if u is None:
+def update_user(db: Session, user: UserUpdate, token: str) -> User:
+    db_user = get_user_by_token(db, UserGetByToken(token=token))
+    if db_user is None:
         return None
-    u = {**u, **user}
+    to_update = user.model_dump(exclude_none=True)
+    for key, value in to_update.items():
+        setattr(db_user, key, value)
     db.commit()
-    db.refresh(user)
-    return user
+    db.refresh(db_user)
+    return db_user

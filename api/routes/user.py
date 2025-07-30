@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.responses import RedirectResponse
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from schemas.user import User, UserCreateBasic, UserCreateEmail, UserCalibrate, UserBasicAuth, UserEmailAuth
+from schemas.user import User, UserCreateBasic, UserCreateEmail, UserCalibrate, UserBasicAuth, UserEmailAuth, UserUpdate
 from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, TokenExpiredException, error_responses
 import cruds.user as crud
 from typing import Union
@@ -162,5 +162,5 @@ async def calibrate_user(user: UserCalibrate, db: Session = Depends(get_db), _lo
 
 
 @user.put("/update", response_model=User, responses=error_responses([UnauthorizedException]))
-async def update_user(user: User, db: Session = Depends(get_db), _login: User = Depends(login_auth)):
-    return crud.update_user(db, user)
+async def update_user(user: UserUpdate, db: Session = Depends(get_db), _login: User = Depends(login_auth)):
+    return crud.update_user(db, user, _login.token)
