@@ -1,4 +1,8 @@
+import httpx
 from fastapi import APIRouter, Depends, Response
+from fastapi.responses import RedirectResponse
+from google.oauth2 import id_token
+from google.auth.transport import requests
 from schemas.user import User, UserCreateBasic, UserCreateEmail, UserCalibrate, UserBasicAuth, UserEmailAuth
 from schemas.http_exception import BadRequestException, UnauthorizedException, ForbiddenException, TokenExpiredException, error_responses
 import cruds.user as crud
@@ -7,6 +11,7 @@ from sqlalchemy.orm import Session
 from guards.auth import login_auth, admin_auth, basic_auth
 from configs.db import get_db
 from configs.env import cookie_token_key
+from configs.oauth import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL
 from helpers import jwt
 
 user = APIRouter(prefix="/user", tags=["user"])
@@ -86,6 +91,51 @@ async def create_user_by_email(u: UserCreateEmail, response: Response, db: Sessi
     jwt_token = jwt.generate_token({"token": user.token})
     response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
     return user
+
+@user.get("/login/google", status_code=302)
+async def login_google():
+    google_auth_url = f"{GOOGLE_AUTH_URL}?client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20email&access_type=offline&prompt=consent"
+    return RedirectResponse(google_auth_url)
+
+@user.get("/login/google/callback", response_model=User, responses=error_responses([BadRequestException, UnauthorizedException]))
+async def google_callback(code: str, response: Response, db: Session = Depends(get_db)):
+    data = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    }
+    async with httpx.AsyncClient() as client:
+        req = await client.post(GOOGLE_TOKEN_URL, data=data)
+        req.raise_for_status()
+        token_response = req.json()
+    
+    id_token_value = token_response.get("id_token")
+    if id_token_value is None:
+        raise BadRequestException("id_tokenが取得できませんでした")
+    
+    try:
+        id_info = id_token.verify_oauth2_token(id_token_value, requests.Request(), GOOGLE_CLIENT_ID)
+        
+        name = id_info.get("name")
+        email = id_info.get("email")
+        if email is None:
+            raise BadRequestException("Email is required for Google login")
+        user = crud.get_user_by_email(db, UserEmailAuth(email=email))
+        if user is None:
+            user = crud.create_user_from_email(db, UserCreateEmail(email=email, name=name))
+        if user is None:
+            raise BadRequestException("User creation failed")
+        jwt_token = jwt.generate_token({"token": user.token})
+        response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
+        return user
+    
+    except ValueError as e:
+        raise BadRequestException(f"id_tokenの検証に失敗しました: {str(e)}") 
+    
+    except Exception as e:
+        raise BadRequestException(f"エラーが発生しました: {str(e)}")
 
 @user.post("/logout", response_model=bool, responses=error_responses([UnauthorizedException, TokenExpiredException]))
 async def logout(response: Response, u: User = Depends(login_auth)):
