@@ -107,7 +107,7 @@ async def login_google(redirect_to: str = "/"):
     google_auth_url = f"{GOOGLE_AUTH_URL}?{params}"
     return RedirectResponse(google_auth_url)
 
-@user.get("/login/google/callback", status_doe=302, responses=error_responses([BadRequestException, UnauthorizedException]))
+@user.get("/login/google/callback", status_code=302, responses=error_responses([BadRequestException, UnauthorizedException]))
 async def google_callback(code: str, state: str, response: Response, db: Session = Depends(get_db)):
     data = {
         "code": code,
