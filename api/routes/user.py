@@ -103,10 +103,10 @@ async def login_google(redirect_to: str = "/"):
         "state": redirect_to,
     })
     google_auth_url = f"{GOOGLE_AUTH_URL}?{params}"
-    return RedirectResponse(google_auth_url)
+    return RedirectResponse(status_code=302, url=google_auth_url)
 
 @user.get("/login/google/callback", status_code=302, response_class=RedirectResponse, responses=error_responses([BadRequestException, UnauthorizedException]))
-async def google_callback(code: str, state: str, response: Response, db: Session = Depends(get_db)):
+async def google_callback(code: str, state: str, db: Session = Depends(get_db)):
     data = {
         "code": code,
         "client_id": GOOGLE_CLIENT_ID,
@@ -142,8 +142,9 @@ async def google_callback(code: str, state: str, response: Response, db: Session
         if user is None:
             raise BadRequestException("User creation failed")
         jwt_token = jwt.generate_token({"token": user.token})
+        response = RedirectResponse(status_code=302, url=state)
         response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
-        return RedirectResponse(url=state)
+        return response
     
     except ValueError as e:
         raise BadRequestException(f"id_tokenの検証に失敗しました: {str(e)}") 
