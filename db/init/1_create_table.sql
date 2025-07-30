@@ -7,6 +7,7 @@ create table if not exists users (
     name varchar(255) not null,
     password varchar(255) not null default "",
     email varchar(255) default null,
+    icon_url varchar(255) default null,
     token varchar(255) default null,
     is_admin boolean default false,
     standard_posture_id int default null,
