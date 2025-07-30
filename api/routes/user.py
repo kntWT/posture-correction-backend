@@ -8,6 +8,7 @@ from schemas.http_exception import BadRequestException, UnauthorizedException, F
 import cruds.user as crud
 from typing import Union
 from sqlalchemy.orm import Session
+from urllib.parse import urlencode
 from guards.auth import login_auth, admin_auth, basic_auth
 from configs.db import get_db
 from configs.env import cookie_token_key
@@ -93,12 +94,21 @@ async def create_user_by_email(u: UserCreateEmail, response: Response, db: Sessi
     return user
 
 @user.get("/login/google", status_code=302)
-async def login_google():
-    google_auth_url = f"{GOOGLE_AUTH_URL}?client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20email&access_type=offline&prompt=consent"
+async def login_google(redirect_to: str = "/"):
+    params = urlencode({
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email",
+        "access_type": "offline",
+        "prompt": "consent",
+        "state": redirect_to,
+    })
+    google_auth_url = f"{GOOGLE_AUTH_URL}?{params}"
     return RedirectResponse(google_auth_url)
 
-@user.get("/login/google/callback", response_model=User, responses=error_responses([BadRequestException, UnauthorizedException]))
-async def google_callback(code: str, response: Response, db: Session = Depends(get_db)):
+@user.get("/login/google/callback", status_doe=302, responses=error_responses([BadRequestException, UnauthorizedException]))
+async def google_callback(code: str, state: str, response: Response, db: Session = Depends(get_db)):
     data = {
         "code": code,
         "client_id": GOOGLE_CLIENT_ID,
@@ -129,7 +139,7 @@ async def google_callback(code: str, response: Response, db: Session = Depends(g
             raise BadRequestException("User creation failed")
         jwt_token = jwt.generate_token({"token": user.token})
         response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
-        return user
+        return RedirectResponse(url=state)
     
     except ValueError as e:
         raise BadRequestException(f"id_tokenの検証に失敗しました: {str(e)}") 
