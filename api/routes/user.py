@@ -137,7 +137,8 @@ async def google_callback(code: str, state: str, response: Response, db: Session
                 req.raise_for_status()
                 user_info = req.json()
             name = user_info.get("name")
-            user = crud.create_user_from_email(db, UserCreateEmail(email=email, name=name))
+            icon_url = user_info.get("picture")
+            user = crud.create_user_from_email(db, UserCreateEmail(email=email, name=name, icon_url=icon_url))
         if user is None:
             raise BadRequestException("User creation failed")
         jwt_token = jwt.generate_token({"token": user.token})
@@ -148,6 +149,9 @@ async def google_callback(code: str, state: str, response: Response, db: Session
         raise BadRequestException(f"id_tokenの検証に失敗しました: {str(e)}") 
     
     except Exception as e:
+        raise BadRequestException(f"エラーが発生しました: {str(e)}")
+    
+    except httpx.HTTPStatusErro as e:
         raise BadRequestException(f"エラーが発生しました: {str(e)}")
 
 @user.post("/logout", response_model=bool, responses=error_responses([UnauthorizedException, TokenExpiredException]))
