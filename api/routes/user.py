@@ -97,7 +97,7 @@ async def login_google(redirect_to: str = "/"):
         "client_id": GOOGLE_CLIENT_ID,
         "redirect_uri": GOOGLE_REDIRECT_URI,
         "response_type": "code",
-        "scope": "openid email",
+        "scope": "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         "access_type": "offline",
         "prompt": "consent",
         "state": redirect_to,
@@ -126,12 +126,17 @@ async def google_callback(code: str, state: str, response: Response, db: Session
     try:
         id_info = id_token.verify_oauth2_token(id_token_value, requests.Request(), GOOGLE_CLIENT_ID)
         
-        name = id_info.get("name")
         email = id_info.get("email")
         if email is None:
             raise BadRequestException("Email is required for Google login")
         user = crud.get_user_by_email(db, UserEmailAuth(email=email))
         if user is None:
+            access_token = token_response.get("access_token")
+            async with httpx.AsyncClient() as client:
+                req = await client.get(f"https://www.googleapis.com/oauth2/v1/userinfo?access_token={access_token}")
+                req.raise_for_status()
+                user_info = req.json()
+            name = user_info.get("name")
             user = crud.create_user_from_email(db, UserCreateEmail(email=email, name=name))
         if user is None:
             raise BadRequestException("User creation failed")
