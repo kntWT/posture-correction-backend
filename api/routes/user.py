@@ -4,7 +4,7 @@ from schemas.http_exception import BadRequestException, UnauthorizedException, F
 import cruds.user as crud
 from typing import Union
 from sqlalchemy.orm import Session
-from guards.auth import login_auth, admin_auth
+from guards.auth import login_auth, admin_auth, basic_auth
 from configs.db import get_db
 from configs.env import cookie_token_key
 from helpers import jwt
@@ -39,9 +39,9 @@ async def login(response: Response, _login: User = Depends(login_auth)):
 
 
 @user.get("/login/basic", response_model=Union[User, None], responses=error_responses([UnauthorizedException]))
-async def login_by_basic(name: str, password: str, response: Response, db: Session = Depends(get_db)):
+async def login_by_basic(response: Response, db: Session = Depends(get_db), basic_credential = Depends(basic_auth)):
     user: User = crud.get_user_by_basic(
-        db, UserBasicAuth(name=name, password=password))
+        db, UserBasicAuth(name=basic_credential[0], password=basic_credential[1]))
     if user is not None:
         jwt_token = jwt.generate_token({"token": user.token})
         response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
