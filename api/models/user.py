@@ -11,6 +11,7 @@ class User(Base):
     name = Column(String, index=True, server_default="")
     password = Column(String, index=True, server_default="")
     email = Column(String, unique=True, index=True, nullable=True)
+    icon_url = Column(String, nullable=True)
     token = Column(String, unique=True, index=True)
     is_admin = Column(Boolean, default=False)
     standard_posture_id = Column(Integer, nullable=True)
