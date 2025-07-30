@@ -45,9 +45,7 @@ async def login(response: Response, _login: User = Depends(login_auth)):
 
 
 @user.get("/login/basic", response_model=Union[User, None], responses=error_responses([UnauthorizedException]))
-async def login_by_basic(response: Response, db: Session = Depends(get_db), basic_credential: UserBasicAuth = Depends(basic_auth)):
-    user: User = crud.get_user_by_basic(
-        db, basic_credential)
+async def login_by_basic(response: Response, user: User = Depends(basic_auth)):
     if user is not None:
         jwt_token = jwt.generate_token({"token": user.token})
         response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
@@ -65,8 +63,8 @@ async def login_by_email(email: str, response: Response, db: Session = Depends(g
 
 
 @user.get("/me/basic", response_model=bool)
-async def is_exist_by_basic(name: str, password: str, db: Session = Depends(get_db)):
-    return crud.get_user_by_basic(db, UserBasicAuth(name=name, password=password)) is not None
+async def is_exist_by_basic(user: User = Depends(basic_auth)):
+    return user is not None
 
 
 @user.get("/me/email", response_model=bool)
