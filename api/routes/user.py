@@ -10,9 +10,10 @@ from typing import Union
 from sqlalchemy.orm import Session
 from urllib.parse import urlencode
 from guards.auth import login_auth, admin_auth, basic_auth
+from guards.redirect_uri import get_redirect_uri
 from configs.db import get_db
 from configs.env import cookie_token_key
-from configs.oauth import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL
+from configs.oauth import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL
 from helpers import jwt
 
 user = APIRouter(prefix="/user", tags=["user"])
@@ -91,11 +92,11 @@ async def create_user_by_email(u: UserCreateEmail, response: Response, db: Sessi
     response.set_cookie(key=cookie_token_key, value=jwt_token, samesite="none", secure=True, httponly=True)
     return user
 
-@user.get("/login/google", status_code=302, response_class=RedirectResponse)
-async def login_google(redirect_to: str = "/"):
+@user.get("/login/google", status_code=302, response_class=RedirectResponse, responses=error_responses([BadRequestException]))
+async def login_google(redirect_uri: str = Depends(get_redirect_uri), redirect_to: str = "/"):
     params = urlencode({
         "client_id": GOOGLE_CLIENT_ID,
-        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "redirect_uri": redirect_uri,
         "response_type": "code",
         "scope": "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         "access_type": "offline",
@@ -107,11 +108,13 @@ async def login_google(redirect_to: str = "/"):
 
 @user.get("/login/google/callback", status_code=302, response_class=RedirectResponse, responses=error_responses([BadRequestException, UnauthorizedException]))
 async def google_callback(code: str, state: str, db: Session = Depends(get_db)):
+    # アプリケーションのoriginをstate(redirect_to)から抽出する
+    redirect_uri = get_redirect_uri(state)
     data = {
         "code": code,
         "client_id": GOOGLE_CLIENT_ID,
         "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "redirect_uri": redirect_uri,
         "grant_type": "authorization_code",
     }
     async with httpx.AsyncClient() as client:
