@@ -71,8 +71,13 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにしてください。")
     
     neck_to_nose_standard = standard_posture.neck_to_nose / standard_posture.standard_distance
-    neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations, "neck_to_nose_standard": neck_to_nose_standard })
     height, width, _channel = img.shape
+    neck_angle = await estimate_from_features({
+        **face_feature, **head_feature, **orientations,
+        "neck_to_nose_standard": neck_to_nose_standard,
+        "image_width": width,
+        "image_height": height,
+    })
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
         user_id=user.id, app_id=app_id, file_name=file.filename, image_width=width, image_height=height, neck_angle=neck_angle, created_at=timestamp))
@@ -102,9 +107,16 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     
     neck_to_nose_standard = 3.0
     # print(f"neck angle estimate start: {datetime.now()}")
-    neck_angle = await estimate_from_features({**face_feature, **head_feature, **orientations, "neck_to_nose_standard": neck_to_nose_standard })
-    # print(f"neck angle estimate finish: {datetime.now()}")
     height, width, _channel = img.shape
+    neck_angle = await estimate_from_features({
+        **face_feature,
+        **head_feature,
+        **orientations,
+        "neck_to_nose_standard": neck_to_nose_standard,
+        "image_width": width,
+        "image_height": height,
+    })
+    # print(f"neck angle estimate finish: {datetime.now()}")
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
         user_id=guest_id, app_id=app_id, file_name=file.filename, image_width=width, image_height=height, neck_angle=neck_angle, created_at=timestamp))

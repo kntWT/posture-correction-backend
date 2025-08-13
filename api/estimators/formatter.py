@@ -105,10 +105,12 @@ def parse_np(data, mode="trees"):
     pitch = np.array([float(d.get("pitch", d.get("face_pitch"))) for d in data])
     yaw = np.array([float(d.get("yaw", d.get("face_yaw"))) for d in data])
     roll = np.array([float(d.get("roll", d.get("face_roll"))) for d in data])
-    nose_x = np.array([float(d["nose_x"]) for d in data])
-    nose_y = np.array([float(d["nose_y"]) for d in data])
-    neck_x = np.array([float(d["neck_x"]) for d in data])
-    neck_y = np.array([float(d["neck_y"]) for d in data])
+    width = np.array([float(d.get("width", d.get("image_width"))) for d in data])
+    height = np.array([float(d.get("height", d.get("image_height"))) for d in data])
+    nose_x = np.array([float(d["nose_x"]) for d in data]) / width
+    nose_y = np.array([float(d["nose_y"]) for d in data]) / height
+    neck_x = np.array([float(d["neck_x"]) for d in data]) / width
+    neck_y = np.array([float(d["neck_y"]) for d in data]) / height
 
     neck_angle = np.array([float(d.get("neck_angle", 0)) for d in data])
     # neck_angle_offset = np.array([float(d["neck_angle_offset"] if "neck_angle_offset" in d else 0) for d in data])
