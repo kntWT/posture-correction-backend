@@ -79,9 +79,20 @@ def unify_rotation_order(_alpha, _beta, _gamma):
 def parse_np(data, mode="trees"):
     set_id = np.array([float(d.get("set_id", d.get("set_num", 0)))
                       for d in data])
-    neck_to_nose = np.array([float(d.get("neck_to_nose", 0)) for d in data])
-    standard_dist = np.array(
+    width = np.array([float(d.get("width", d.get("image_width", 310))) for d in data])
+    height = np.array([float(d.get("height", d.get("image_height", 414))) for d in data])
+    nose_x = np.array([float(d["nose_x"]) for d in data]) / width
+    nose_y = np.array([float(d["nose_y"]) for d in data]) / height
+    neck_x = np.array([float(d["neck_x"]) for d in data]) / width
+    neck_y = np.array([float(d["neck_y"]) for d in data]) / height
+    _neck_to_nose = np.array([float(d.get("neck_to_nose", 0)) for d in data])
+    # 正規化された距離は1より小さい
+    # 鼻と首は元座標をとっているので正確に計算できる
+    neck_to_nose = _neck_to_nose if _neck_to_nose[0] < 1 else np.array([float(math.dist([nose_x[i], nose_y[i]], [neck_x[i], neck_y[i]])) for i in range(len(data))])
+    _standard_dist = np.array(
         [float(d.get("standard_dist", d.get("standard_distance"))) for d in data])
+    # 目と目の距離は各座標を取得していなかったので、y方向の差分を０と仮定してdistをwidthで割ることで近似的に正規化する
+    standard_dist = _standard_dist if _standard_dist[0] < 1 else _standard_dist / width
     normalized_dist = neck_to_nose / standard_dist
     neck_to_nose_standard = np.array([float(
         d.get("neck_to_nose_standard", 0)) if "neck_to_nose_standard" in d and d.get("neck_to_nose_standard", 0) is not None else 2.5 for d in data])
@@ -105,12 +116,6 @@ def parse_np(data, mode="trees"):
     pitch = np.array([float(d.get("pitch", d.get("face_pitch"))) for d in data])
     yaw = np.array([float(d.get("yaw", d.get("face_yaw"))) for d in data])
     roll = np.array([float(d.get("roll", d.get("face_roll"))) for d in data])
-    width = np.array([float(d.get("width", d.get("image_width"))) for d in data])
-    height = np.array([float(d.get("height", d.get("image_height"))) for d in data])
-    nose_x = np.array([float(d["nose_x"]) for d in data]) / width
-    nose_y = np.array([float(d["nose_y"]) for d in data]) / height
-    neck_x = np.array([float(d["neck_x"]) for d in data]) / width
-    neck_y = np.array([float(d["neck_y"]) for d in data]) / height
 
     neck_angle = np.array([float(d.get("neck_angle", 0)) for d in data])
     # neck_angle_offset = np.array([float(d["neck_angle_offset"] if "neck_angle_offset" in d else 0) for d in data])
