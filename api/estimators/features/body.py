@@ -11,7 +11,9 @@ import random
 import string
 
 from configs.env import image_dir, timestamp_format
+from configs.estimator import image_size
 import datetime
+from helpers.resize_image import resize_and_pad
 
 _image_dir = image_dir if image_dir is not None else "images"
 
@@ -48,15 +50,14 @@ def parse_point(cand) -> Point:
 
 
 def estimate_body_pose(
-        img: np.ndarray = None, sub_path: str = "1", file_name: str = "no_name",
+        img: np.ndarray | None = None, sub_path: str = "1", file_name: str = "no_name", size: int = image_size
 ) -> Dict | None:
     """
-    画像の横幅、立幅で正規化する前の鼻、首、両目の座標と、正規化後の座標を用いて計算した距離を返す
+    入力画像をリサイズして鼻、首、両目の座標を取得する
     """
     if img is None:
         return None
-    image_width = img.shape[1]
-    image_height = img.shape[0]
+    img = resize_and_pad(img, size)
     candidate, subset = body_estimation(img)
     canvas: np.ndarray = copy.deepcopy(img)
     canvas = util.draw_bodypose(canvas, candidate, subset)
@@ -94,9 +95,10 @@ def estimate_body_pose(
 
     cv2.imwrite(f"{save_path}/{file_name}", canvas)
     neck_to_nose: float = math.dist(
-        [nose["x"] / image_width, nose["y"] / image_height], [neck["x"] / image_width, neck["y"] / image_height])
-    standard_dist: float = math.dist([right_eye["x"] / image_width, right_eye["y"] / image_height], [
-                                     left_eye["x"] / image_width, left_eye["y"] / image_height])
+        [nose["x"], nose["y"]], [neck["x"], neck["y"]])
+    standard_dist: float = math.dist(
+        [right_eye["x"], right_eye["y"]],
+        [left_eye["x"], left_eye["y"]])
     print(f"face estimated: {datetime.datetime.now().strftime(timestamp_format)}")
     return {
         "nose_x": nose["x"],
