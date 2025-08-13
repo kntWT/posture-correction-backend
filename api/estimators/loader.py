@@ -55,7 +55,7 @@ def load_data_from_csv(file_name: str, mode: str = "torch", feat_mode: str = "tr
     if mode == "torch":
         return parse_torch(data)
     elif mode == "np" or mode == "numpy":
-        return parse_np(data, feat_mode)
+        return parse_np(data, feat_mode, config.train_data_resized)
     elif mode == "pd" or mode == "pandas":
         return parse_pd(data)
     elif mode == "list":
@@ -68,7 +68,7 @@ def load_data_from_joined_csv(file_name: str, shuffle=True, feat_mode: str = "tr
     joined_list = load_data_from_csv(file_name, "list", feat_mode)
     joined = split_data(joined_list, "set_id", 1)
     # [set_id][dimension]
-    joined_nps = [parse_np(j, feat_mode) for j in joined]
+    joined_nps = [parse_np(j, feat_mode, config.train_data_resized) for j in joined]
     if shuffle:
         np.random.shuffle(joined_nps)
     return joined_nps
@@ -81,7 +81,7 @@ def load_data_from_joined_all_member_csv(file_name, shuffle=True, feat_mode="tre
     #   joined = [split_data(j, "set_id", 1) for j in joined_list]
     # [set_id][dimension]
     print([len(d) for d in joined])
-    joined_nps = [parse_np(j, mode=feat_mode) for j in joined]
+    joined_nps = [parse_np(j, feat_mode, config.train_data_resized) for j in joined]
     if shuffle:
         np.random.shuffle(joined_nps)
     return joined_nps

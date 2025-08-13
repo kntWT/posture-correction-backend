@@ -54,6 +54,8 @@ lgb_columns = [
 ]
 model_file_name = "estimator.onnx"
 scaler_file_name = "scaler.pkl"
+image_size = 384
+train_data_resized = False
 
 model_dir = "estimators/model"
 evaluate_output_dir = "estimators/figures"
