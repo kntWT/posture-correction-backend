@@ -18,6 +18,10 @@ class Posture(CamelCaseModel):
     nose_y: float | None
     neck_x: float | None
     neck_y: float | None
+    left_eye_x: float | None
+    left_eye_y: float | None
+    right_eye_x: float | None
+    right_eye_y: float | None
     image_width: float | None
     image_height: float | None
     neck_to_nose: float | None
