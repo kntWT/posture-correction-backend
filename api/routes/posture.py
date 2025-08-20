@@ -10,6 +10,7 @@ from datetime import datetime
 import cruds.posture as crud
 from configs.db import get_db
 from configs.env import image_dir, timestamp_format, guest_id
+from configs.estimator import guest_neck_to_nose_standard
 from estimators.features.estimate import estimate_from_image as estimate_feature_from_image
 from estimators.estimate import estimate_from_image, estimate_from_features
 from guards.auth import login_auth, admin_auth
@@ -46,7 +47,7 @@ async def create_posture(posture: PostureCreate, db: Session = Depends(get_db), 
 
 
 @posture.post("/estimate", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
-async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), app_id: str = Depends(require_app_id), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), enforce_calibration: bool = True, app_id: str = Depends(require_app_id), db: Session = Depends(get_db), user: User = Depends(login_auth)):
     try:
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
@@ -54,7 +55,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         raise("Invalid JSON format")
     
     standard_posture = crud.get_standard_posture_by_user_token(db, user.token)
-    if standard_posture is None:
+    if enforce_calibration and standard_posture is None:
         raise BadRequestException("事前にキャリブレーションが必要です")
 
     file_path = save_file(file.file, image_dir,
@@ -70,7 +71,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     if head_feature is None:
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにしてください。")
     
-    neck_to_nose_standard = standard_posture.neck_to_nose / standard_posture.standard_distance
+    neck_to_nose_standard = (standard_posture.neck_to_nose / standard_posture.standard_distance) if enforce_calibration else guest_neck_to_nose_standard
     height, width, _channel = img.shape
     neck_angle = await estimate_from_features({
         **face_feature, **head_feature, **orientations,
@@ -105,14 +106,13 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     if head_feature is None:
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにしてください。")
     
-    neck_to_nose_standard = 3.0
     # print(f"neck angle estimate start: {datetime.now()}")
     height, width, _channel = img.shape
     neck_angle = await estimate_from_features({
         **face_feature,
         **head_feature,
         **orientations,
-        "neck_to_nose_standard": neck_to_nose_standard,
+        "neck_to_nose_standard": guest_neck_to_nose_standard,
         "image_width": width,
         "image_height": height,
     })

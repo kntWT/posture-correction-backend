@@ -64,3 +64,5 @@ train_data_dir = "estimators/data"
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(evaluate_output_dir, exist_ok=True)
 os.makedirs(train_data_dir, exist_ok=True)
+
+guest_neck_to_nose_standard = 3.0
