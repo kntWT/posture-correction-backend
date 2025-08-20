@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, File, UploadFile, Form, Body, Query
+from pydantic_core import ValidationError
 from sqlalchemy.orm import Session
 from schemas.posture import Posture, PostureCreate, PostureOnlySensor, PostureOnlyFace, PostureOnlyPosition, PostureOnlyFilename, PostureStats, PostureRankingItem
 from schemas.user import User
@@ -53,6 +54,8 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         orientations = PostureOnlySensor(**sensors_json).model_dump()
     except json.JSONDecodeError:
         raise BadRequestException("Invalid JSON format")
+    except ValidationError:
+        raise BadRequestException("センサの値が無効です")
     
     standard_posture = crud.get_standard_posture_by_user_token(db, user.token)
     if enforce_calibration and standard_posture is None:
@@ -90,7 +93,9 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
     except json.JSONDecodeError:
-        raise("Invalid JSON format")
+        raise BadRequestException("Invalid JSON format")
+    except ValidationError:
+        raise BadRequestException("センサの値が無効です")
 
     # print(f"request recieved: {datetime.now()}")
     file_path = save_file(file.file, image_dir,
@@ -128,7 +133,9 @@ async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
     except json.JSONDecodeError:
-       raise("Invalid JSON format")
+       raise BadRequestException("Invalid JSON format")
+    except ValidationError:
+        raise BadRequestException("センサの値が無効です")
     
     file_path = save_file(file.file, image_dir,
                           f"{user.id}/original", file.filename)
