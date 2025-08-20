@@ -6,7 +6,7 @@ from configs.env import secret_key, public_key
 from schemas.http_exception import TokenExpiredException, UnauthorizedException
 
 ALGORITHM = "EdDSA"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60  # トークンの有効期限（分）
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # トークンの有効期限（分）
 
 
 def generate_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
