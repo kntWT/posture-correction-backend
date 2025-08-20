@@ -62,11 +62,11 @@ class PostureCreate(CamelCaseModel):
 
 
 class PostureOnlySensor(CamelCaseModel):
-    sensor_alpha: float | None = Field(validation_alias=AliasChoices(
+    sensor_alpha: float = Field(validation_alias=AliasChoices(
         "alpha", "orientation_alpha", "orientationAlpha"))
-    sensor_beta: float | None = Field(validation_alias=AliasChoices(
+    sensor_beta: float = Field(validation_alias=AliasChoices(
         "beta", "orientation_beta", "orientationBeta"))
-    sensor_gamma: float | None = Field(validation_alias=AliasChoices(
+    sensor_gamma: float = Field(validation_alias=AliasChoices(
         "gamma", "orientation_gamma", "orientationGamma"))
 
 
