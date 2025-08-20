@@ -52,7 +52,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
     except json.JSONDecodeError:
-        raise("Invalid JSON format")
+        raise BadRequestException("Invalid JSON format")
     
     standard_posture = crud.get_standard_posture_by_user_token(db, user.token)
     if enforce_calibration and standard_posture is None:
