@@ -65,7 +65,7 @@ Copy `.env.sample`, and replace the values enclosed in `<>` with appropriate val
 
 ## Posture Estimation
 
-- The skeleton estimation library used is [Pytorch-OpenPose](https://github.com/Hzzone/pytorch-openpose). Run `git submodule init` and `git submodule update`, then place the model under `api/pytorch-openpose/model` according to the repository’s README.
+- The skeleton estimation library used is [Pytorch-OpenPose](https://github.com/Hzzone/pytorch-openpose). Run `git submodule init` and `git submodule update`, then place the model(`body_pose_model.pth`) under `api/pytorch-openpose/model` according to the repository’s README.
 - If no neck angle estimation model is found at startup, training will run automatically. Place the [required training data](https://drive.google.com/drive/u/0/folders/1DCPd7bjqo80g9JaEFJEANtliDxzXwIs_) under `api/estimators/data` (do not rename the files).
 - After running posture estimation, the original image, head pose estimation results, and skeleton estimation results will be output to `api/images` (or the directory specified in environment variables)/`:userId`/`(original|head|neck)`.
 
