@@ -1,86 +1,85 @@
 # posture-correction-backend
 
-姿勢矯正システムのバックエンド
+Backend for the posture correction system
 
-- スマートフォンのセンサ情報と内カメラの画像からユーザの首の角度を推定します
-- システムを利用したい場合は[利用方法](#利用方法)を参照してください
-- システムをローカルでセットアップしたい場合は[セットアップ方法](#セットアップ方法)を参照してください
-- モデルのみを利用したい場合は[学習済みモデル](https://drive.google.com/drive/folders/14OG010mwTi0XLHKoFhliflH6sxUvWVX1?usp=sharing)からダウンロードできます
+- Estimates the user’s neck angle from smartphone sensor data and front camera images.
+- To use the system, see [Usage](#usage).
+- To set up the system locally, see [Setup](#setup).
+- If you only want to use the model, you can download it from [Pretrained Models](https://drive.google.com/drive/folders/14OG010mwTi0XLHKoFhliflH6sxUvWVX1?usp=sharing).
 
-# 構成
+# Structure
 
-- Docker Compose に api(FastAPI)と db(MySQL)を配置
-- ローカルの GPU を使用して推論を行う（nvidia/cuda:12.1.1）
+- `api` (FastAPI) and `db` (MySQL) are placed in Docker Compose.
+- Uses the local GPU for inference (`nvidia/cuda:12.1.1`).
 
-**開発で使用するポート一覧**
+**Ports used in development**
 
-| サービス名 | ポート番号 | 備考             |
-| ---------- | ---------- | ---------------- |
-| FastAPI    | 3330       | API              |
-| MySQL      | 3331       | データベース     |
-| PHPMyAdmin | 3332       | データベース管理 |
+| Service    | Port | Notes               |
+| ---------- | ---- | ------------------- |
+| FastAPI    | 3330 | API                 |
+| MySQL      | 3331 | Database            |
+| PHPMyAdmin | 3332 | Database Management |
 
 ## API
 
 ### OpenAPI
 
-[DockerHub](https://hub.docker.com/repository/docker/kntwt/posture-correction-schema/general)で public になっているので適宜参照してください（API を立ち上げたら`http://localhost:3330/docs`でも参照できます）
-フロントエンド開発時に pull すると型安全に API を呼び出すことができます
+It is public on [DockerHub](https://hub.docker.com/repository/docker/kntwt/posture-correction-schema/general), so please refer to it as needed (you can also check it at `http://localhost:3330/docs` after starting the API).  
+By pulling it during frontend development, you can call the API with type safety.
 
-### ユーザ周り
+### User-related
 
-- ユーザの登録
-  - Basic 認証またはメールアドレスで新規作成できます（それぞれエンドポイントが異なります）
-- キャリブレーション
-  - ユーザごとにより正確な推定を行うためキャリブレーションが必要です
-  - なるべくスマートフォンの角度、ユーザの顔の角度がずれないように首をまっすぐにした状態でキャリブレーションを行ってください
-- 情報へのアクセス
-  - ユーザに関する情報にアクセスするにはログイン後に発行される JWT Token を Cookie に含めてリクエストする必要があります
-  - ログイン時に Cookie に埋め込むのでそれをそのまま利用してください
+- **User registration**
+  - You can create a new account using Basic authentication or an email address (each has a different endpoint).
+- **Calibration**
+  - Calibration is required for more accurate estimation per user.
+  - Please keep your neck straight during calibration so that the smartphone angle and your face angle are aligned as much as possible.
+- **Accessing information**
+  - To access user-related information, you need to include the JWT Token (issued after login) in the Cookie when making requests.
+  - The token is embedded in the Cookie at login, so just use it directly.
 
-### 姿勢推定
+### Posture estimation
 
-- 姿勢推定にはスマートフォンのジャイロセンサと内カメラの画像を含める必要があります
-- 姿勢推定や過去の姿勢データへのアクセスには、Cookie にユーザ情報（JWT Token）、Header に appId が含まれている必要があります
-  - Header のキーは`app-id`または`app_id`としてください（大文字小文字は区別されません）
-- ログインしたユーザの姿勢推定には事前に最も正しい姿勢を記録するキャリブレーションが必要です
-- ゲストユーザ用のエンドポイント（`/posture/estimate/guest`）ではキャリブレーションが不要です
-- キャリブレーションする前にユーザの顔の角度のみフィードバックしたい場合は`/posture/estimate/feature`を使用してください
+- Posture estimation requires both the smartphone gyroscope data and the front camera image.
+- To access posture estimation or historical posture data, the Cookie must include user info (JWT Token), and the Header must include an `appId`.
+  - The Header key can be `app-id` or `app_id` (case-insensitive).
+- Calibration (recording the most correct posture in advance) is required for posture estimation of logged-in users.
+- For guest users, the endpoint `/posture/estimate/guest` can be used without calibration.
+- If you only want feedback on the face angle before calibration, use `/posture/estimate/feature`.
 
-## データベース
+## Database
 
-- データベースには MySQL を使用しています
-- テーブルのスキーマは`db/init/1_create_table.sql`を参照してください
+- MySQL is used as the database.
+- See `db/init/1_create_table.sql` for the table schema.
 
-# 利用方法
+# Setup
 
-- アプリ登録サイトでログイン、利用先のサーバを選択後、プロジェクトを作成してください
-  - 作成後に表示される`appId`をメモし、API リクエスト時に Header に含めるようにして下さい
-- 利用先のサーバ（またはローカル）で[Tailscale](https://tailscale.com/)などを用いて VPN 接続してください
-- 利用先の HTTP サーバでプロキシし、`<接続先のIP>:3330/`につなぐことで API が利用できます
-- [API の構成](#api)を参照し適切に API を呼び出してください（SSL や CORS に注意してください）
-- 接続先（このバックエンドが動いているホストマシン）が長時間操作されないと Docker が落ちる場合があるので注意してください
+## Environment Variables
 
-# セットアップ方法
+Copy `.env.sample`, and replace the values enclosed in `<>` with appropriate values.
 
-## 環境変数
+    cp .env.sample .env
 
-`.env.sample`をコピーし、値が`<>`で囲われているものを適当な値に変更して利用してください
+- `ESTIMATE_BODY_POSE_POOL_COUNT` and `ESTIMATE_HEAD_POSE_POOL_COUNT` are the number of processes allocated to feature extraction (skeleton estimation and head pose estimation) used for neck angle estimation. Adjust according to your environment.
+- `MOCK_SECRET_KEY` and `TRAIN_IF_NOT_EXIST` are for workflow purposes, so do not change their default values during development.
+
+## Posture Estimation
+
+- The skeleton estimation library used is [Pytorch-OpenPose](https://github.com/Hzzone/pytorch-openpose). Run `git submodule init` and `git submodule update`, then place the model under `api/pytorch-openpose/model` according to the repository’s README.
+- If no neck angle estimation model is found at startup, training will run automatically. Place the [required training data](https://drive.google.com/drive/u/0/folders/1DCPd7bjqo80g9JaEFJEANtliDxzXwIs_) under `api/estimators/data` (do not rename the files).
+- After running posture estimation, the original image, head pose estimation results, and skeleton estimation results will be output to `api/images` (or the directory specified in environment variables)/`:userId`/`(original|head|neck)`.
+
+## User Authentication
+
+- Public and private keys are used for JWT signing. Place the keys encrypted in `EdDSA` format under `api/configs/keys` (`secret_key`, `publick_key.pub`).
+- The key used for signing Cookies can be changed via environment variables.
+
+## Run Application
+
+Run the following command in the project root directory:
 
 ```sh
-cp .env.sample .env
+make docker-build-prod
 ```
 
-- `ESTIMATE_BODY_POSE_POOL_COUNT`と`ESTIMATE_HEAD_POSE_POOL_COUNT`はそれぞれ首の角度推定に用いる特徴量抽出（骨格推定と頭部姿勢推定）に割り当てるプロセス数です。動作環境に合わせて適切な値を設定してください
-- `MOCK_SECRET_KEY`と`TRAIN_IF_NOT_EXIST`は workflow 用の変数なので、開発段階では既定の値から変更しないでください
-
-## 姿勢推定
-
-- 姿勢推定に用いる骨格推定ライブラリとして[Pytorch-OpenPose](https://github.com/Hzzone/pytorch-openpose)を利用しています。`git submodule init`、`git submodule update`を実行後、リポジトリの README に従い model を`api/pytorch-openpose/model`配下に配置してください
-- 起動時に首の角度推定モデルがない場合に学習が走るので、`api/estimators/data`配下に[学習に必要なデータ](https://drive.google.com/drive/u/0/folders/1DCPd7bjqo80g9JaEFJEANtliDxzXwIs_)を配置してください（ファイル名は変更しないでください）
-- 姿勢推定実行後、元画像、頭部姿勢推定結果、骨格推定結果がそれぞれ`api/images(または環境変数で指定したディレクトリ)/:userId/(original|head|neck)`に出力されます
-
-## ユーザ認証
-
-- JWT の署名に公開鍵と秘密鍵を利用しています。`EdDSA`形式で暗号化した鍵を`api/configs/keys`に配置してください（`secret_key`、`publick_key.pub`）
-- Cookie に署名する key は環境変数で変更できます
+**use prod configuration even if you are in development environment.**
