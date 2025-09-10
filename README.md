@@ -1,8 +1,8 @@
 # posture-correction-backend
 
-Backend for the posture correction system
+Backend service for the posture correction system
 
-- Estimates the user’s neck angle from smartphone sensor data and front camera images.
+- Estimates the user’s neck angle using smartphone sensor data and images from the front-facing camera.
 - To set up the system locally, see [Setup](#setup).
 - If you only want to use the model, you can download it from [Pretrained Models](https://drive.google.com/drive/folders/14OG010mwTi0XLHKoFhliflH6sxUvWVX1?usp=sharing).
 
@@ -32,7 +32,7 @@ By pulling it during frontend development, you can call the API with type safety
   - You can create a new account using Basic authentication or an email address (each has a different endpoint).
 - **Calibration**
   - Calibration is required for more accurate estimation per user.
-  - Please keep your neck straight during calibration so that the smartphone angle and your face angle are aligned as much as possible.
+  - Please keep your neck straight during calibration so that the smartphone angle and your head orientation are aligned as much as possible.
 - **Accessing information**
   - To access user-related information, you need to include the JWT Token (issued after login) in the Cookie when making requests.
   - The token is embedded in the Cookie at login, so just use it directly.
@@ -66,7 +66,7 @@ Copy `.env.sample`, and replace the values enclosed in `<>` with appropriate val
 
 - The skeleton estimation library used is [Pytorch-OpenPose](https://github.com/Hzzone/pytorch-openpose). Run `git submodule init` and `git submodule update`, then place the model(`body_pose_model.pth`) under `api/pytorch-openpose/model` according to the repository’s README.
 - If no neck angle estimation model is found at startup, training will run automatically. Place the [required training data](https://drive.google.com/drive/u/0/folders/1DCPd7bjqo80g9JaEFJEANtliDxzXwIs_) under `api/estimators/data` (do not rename the files).
-- After running posture estimation, the original image, head pose estimation results, and skeleton estimation results will be output to `api/images` (or the directory specified in environment variables)/`:userId`/`(original|head|neck)`.
+- After running posture estimation, the original image, head pose estimation results, and skeleton estimation results will be saved in `api/images` (or the directory specified in environment variables)/`:userId`/`(original|head|neck)`.
 
 ## User Authentication
 
