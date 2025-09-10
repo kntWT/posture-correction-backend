@@ -3,7 +3,6 @@
 Backend for the posture correction system
 
 - Estimates the user’s neck angle from smartphone sensor data and front camera images.
-- To use the system, see [Usage](#usage).
 - To set up the system locally, see [Setup](#setup).
 - If you only want to use the model, you can download it from [Pretrained Models](https://drive.google.com/drive/folders/14OG010mwTi0XLHKoFhliflH6sxUvWVX1?usp=sharing).
 
