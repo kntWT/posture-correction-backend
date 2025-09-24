@@ -16,7 +16,7 @@ try:
                                 "CPUExecutionProvider"])
     sess.set_providers(["CPUExecutionProvider"], [{"input_op_num_threads": 1}])
     scaler = joblib.load(f"{config.model_dir}/{config.scaler_file_name}")
-except NoSuchFile:
+except FileNotFoundError:
     if train_if_not_exist:
         train()
         sess = ort.InferenceSession(f"{config.model_dir}/{config.model_file_name}", providers=[
