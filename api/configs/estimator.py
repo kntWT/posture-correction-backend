@@ -26,32 +26,33 @@ lgb_params = {
     'metric': 'rmse',
     "device": "cpu",
     'verbosity': -1,
-    'learning_rate': 0.09686737182522671,
-    'num_leaves': 73,
-    'max_depth': 13,
-    'feature_fraction': 0.8694096287219913,
-    'bagging_fraction': 0.6227147380713965,
-    'bagging_freq': 9,
-    'lambda_l1': 0.024450887804406532,
-    'lambda_l2': 2.625370263087402e-06
+    'learning_rate': 0.08801214417487016,
+    'num_leaves': 113,
+    'max_depth': 15,
+    'feature_fraction': 0.9107831058500206,
+    'bagging_fraction': 0.8265731478504678,
+    'bagging_freq': 3,
+    'lambda_l1': 0.002077932445653581,
+    'lambda_l2': 4.816461058357253e-05
 }
 lgb_columns = [
     "首から鼻",
     "目と目",
-    "基準姿勢",
-    "スマホalpha",
+    "正規化首から鼻",
+    "基準姿勢正規化首から鼻",
+    "基準姿勢との割合",
     "スマホbeta",
-    "スマホgamma",
     "顔pitch",
     "顔yaw",
     "顔roll",
-    "sin(pitch)",
-    "sin(yaw)",
+    "diffX",
+    "diffY",
     "鼻X",
     "鼻Y",
     "首X",
     "首Y"
 ]
+
 model_file_name = "estimator.onnx"
 scaler_file_name = "scaler.pkl"
 image_size = 384

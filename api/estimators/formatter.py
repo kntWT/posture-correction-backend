@@ -176,12 +176,12 @@ def parse_np(data, mode="trees", had_resized: bool = True):
                 # set_id[i],
                 neck_to_nose[i], # lightGBM
                 standard_dist[i], # lightGBM
-                # normalized_ratio[i],
+                normalized_dist[i],
                 neck_to_nose_standard[i], # lightGBM
                 #   ref_normalized_dist[i], # lightGBM
                 # ref_neck_to_nose[i], # lightGBM
                 # ref_standard_dist[i], # lightGBM
-                # normalized_ratio[i], # trees
+                normalized_ratio[i], # trees
                 # alpha[i], # lightGBM
                 beta[i], # trees, lightGBM
                 # gamma[i], # lightGBM
@@ -193,6 +193,8 @@ def parse_np(data, mode="trees", had_resized: bool = True):
                 #   pitch[i] - beta[i],
                 #   yaw[i] - alpha[i],
                 #   roll[i] - gamma[i],
+                nose_x[i] - neck_x[i], # lightGBM
+                nose_y[i] - neck_y[i], # lightGBM
                 nose_x[i], # lightGBM
                 nose_y[i], # lightGBM
                 neck_x[i], # lightGBM
