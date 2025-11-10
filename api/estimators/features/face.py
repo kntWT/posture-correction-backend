@@ -76,7 +76,7 @@ def init_head_pose_estimator():
 
 
 def estimate_head_pose(
-        img=None, sub_pash: str = "1", file_name: str = "no_name"
+        img=None, sub_pash: str = "1", file_name: str = "no_name", request_id: str = "no_request_id"
 ) -> Dict | None:
     if img is None:
         return None
@@ -123,7 +123,7 @@ def estimate_head_pose(
     save_dir: str = f"{_image_dir}/{sub_pash}/head"
     os.makedirs(save_dir, exist_ok=True)
     cv2.imwrite(f"{save_dir}/{file_name}", img)
-    print(f"head estimated: {datetime.datetime.now().strftime(timestamp_format)}")
+    print(f"[{request_id}] head estimated: {datetime.datetime.now().strftime(timestamp_format)}")
     return {
         "pitch": float(pitch),
         "yaw": float(yaw),

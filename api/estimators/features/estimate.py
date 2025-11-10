@@ -6,6 +6,7 @@ from typing import List, Dict, Any, NoReturn
 import numpy as np
 import datetime
 from configs.env import image_dir, timestamp_format
+from configs.estimator import image_size
 from helpers.multiprocessing import estimate_head_pose_in_process, estimate_body_pose_in_process
 
 # from estimators.body import estimate_body_pose
@@ -32,7 +33,7 @@ async def estimate(path: str, sub_path: int, file_name: str):
         return
 
 
-async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
+async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str, request_id: str = "no_request_id"):
     # face_feature = estimate_body_pose(
     #     image.copy(), user_id, file_name
     # )
@@ -49,9 +50,10 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
     base_args = {
         "img": image,
         "sub_path": user_id,
-        "file_name": file_name
+        "file_name": file_name,
+        "request_id": request_id
     }
-    print(f"estimate start: {datetime.datetime.now().strftime(timestamp_format)}")
+    print(f"[{request_id}] estimate start: {datetime.datetime.now().strftime(timestamp_format)}")
     
     tasks: List[Any] = [
         loop.run_in_executor(
@@ -59,7 +61,9 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
             lambda: estimate_body_pose_in_process(
                 base_args["img"],
                 base_args["sub_path"],
-                base_args["file_name"]
+                base_args["file_name"],
+                image_size,
+                base_args["request_id"]
             )
         ),
         loop.run_in_executor(
@@ -67,7 +71,8 @@ async def estimate_from_image(image: np.ndarray, user_id: int, file_name: str):
             lambda: estimate_head_pose_in_process(
                 base_args["img"],
                 base_args["sub_path"],
-                base_args["file_name"]
+                base_args["file_name"],
+                base_args["request_id"]
             )
         ),
     ]

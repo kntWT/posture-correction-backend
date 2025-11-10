@@ -142,7 +142,7 @@ def parse_np(data, mode="trees", had_resized: bool = True):
     alpha = rots["alpha"]
     beta = 90 - rots["beta"]
     gamma = rots["gamma"]
-    print(alpha[0], beta[0], gamma[0])
+    # print(alpha[0], beta[0], gamma[0])
     pitch = np.array([float(d.get("pitch", d.get("face_pitch"))) for d in data])
     yaw = np.array([float(d.get("yaw", d.get("face_yaw"))) for d in data])
     roll = np.array([float(d.get("roll", d.get("face_roll"))) for d in data])

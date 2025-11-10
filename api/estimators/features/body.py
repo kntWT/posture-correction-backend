@@ -50,7 +50,7 @@ def parse_point(cand) -> Point:
 
 
 def estimate_body_pose(
-        img: np.ndarray | None = None, sub_path: str = "1", file_name: str = "no_name", size: int = image_size
+        img: np.ndarray | None = None, sub_path: str = "1", file_name: str = "no_name", size: int = image_size, request_id: str = "no_request_id"
 ) -> Dict | None:
     """
     入力画像をリサイズして鼻、首、両目の座標を取得する
@@ -99,7 +99,7 @@ def estimate_body_pose(
     standard_dist: float = math.dist(
         [right_eye["x"], right_eye["y"]],
         [left_eye["x"], left_eye["y"]])
-    print(f"face estimated: {datetime.datetime.now().strftime(timestamp_format)}")
+    print(f"[{request_id}] face estimated: {datetime.datetime.now().strftime(timestamp_format)}")
     return {
         "nose_x": nose["x"],
         "nose_y": nose["y"],

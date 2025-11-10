@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, UploadFile, Form, Body, Query
+from fastapi import APIRouter, Depends, File, UploadFile, Form, Body, Query, Request
 from pydantic_core import ValidationError
 from sqlalchemy.orm import Session
 from schemas.posture import Posture, PostureCreate, PostureOnlySensor, PostureOnlyFace, PostureOnlyPosition, PostureOnlyFilename, PostureStats, PostureRankingItem
@@ -17,6 +17,7 @@ from estimators.estimate import estimate_from_image, estimate_from_features
 from guards.auth import login_auth, admin_auth
 from guards.app_id import require_app_id
 from helpers.save_file import save_file
+from helpers.get_request_id import get_request_id
 
 posture = APIRouter(prefix="/posture", tags=["posture"])
 
@@ -48,7 +49,16 @@ async def create_posture(posture: PostureCreate, db: Session = Depends(get_db), 
 
 
 @posture.post("/estimate", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
-async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), enforce_calibration: bool = True, app_id: str = Depends(require_app_id), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+async def estimate_posture(
+    request: Request,
+    file: UploadFile = File(...),
+    sensors: str = Form(...),
+    enforce_calibration: bool = True,
+    app_id: str = Depends(require_app_id),
+    db: Session = Depends(get_db),
+    user: User = Depends(login_auth),
+    request_id: str = Depends(get_request_id)
+):
     try:
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
@@ -57,6 +67,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     except ValidationError:
         raise BadRequestException("センサの値が無効です")
     
+    print(f"[{request_id}] request recieved: {datetime.now().strftime(timestamp_format)}")
     standard_posture = crud.get_standard_posture_by_user_token(db, user.token)
     if enforce_calibration and standard_posture is None:
         raise BadRequestException("事前にキャリブレーションが必要です")
@@ -68,7 +79,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     if file_path is None:
         raise BadRequestException("Failed to upload file")
     img = cv2.imread(file_path)
-    face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename)
+    face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename, request_id)
     if face_feature is None:
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにし、画面から離れて首元が映るようにしてください。")
     if head_feature is None:
@@ -76,19 +87,29 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     
     neck_to_nose_standard = (standard_posture.neck_to_nose / standard_posture.standard_distance) if enforce_calibration else guest_neck_to_nose_standard
     height, width, _channel = img.shape
-    neck_angle = await estimate_from_features({
-        **face_feature, **head_feature, **orientations,
-        "neck_to_nose_standard": neck_to_nose_standard,
-        "image_width": width,
-        "image_height": height,
-    })
+    neck_angle = await estimate_from_features(
+        {
+            **face_feature, **head_feature, **orientations,
+            "neck_to_nose_standard": neck_to_nose_standard,
+            "image_width": width,
+            "image_height": height,
+        },
+        request_id
+    )
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
         user_id=user.id, app_id=app_id, file_name=file.filename, image_width=width, image_height=height, neck_angle=neck_angle, created_at=timestamp))
 
 
 @posture.post("/estimate/guest", response_model=Posture, responses=error_responses([BadRequestException, NotFoundException]))
-async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...), app_id: str = Depends(require_app_id), db: Session = Depends(get_db)):
+async def estimate_guest_posture(
+    request: Request,
+    file: UploadFile = File(...),
+    sensors: str = Form(...),
+    app_id: str = Depends(require_app_id),
+    db: Session = Depends(get_db),
+    request_id: str = Depends(get_request_id)
+):
     try:
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
@@ -97,7 +118,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     except ValidationError:
         raise BadRequestException("センサの値が無効です")
 
-    # print(f"request recieved: {datetime.now()}")
+    print(f"[{request_id}] request recieved: {datetime.now().strftime(timestamp_format)}")
     file_path = save_file(file.file, image_dir,
                           f"{guest_id}/original", file.filename)
     timestamp_str = file.filename.split(".jpg")[0]
@@ -105,7 +126,7 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     if file_path is None:
         raise BadRequestException("Failed to upload file")
     img = cv2.imread(file_path)
-    face_feature, head_feature = await estimate_feature_from_image(img, guest_id, file.filename)
+    face_feature, head_feature = await estimate_feature_from_image(img, guest_id, file.filename, request_id)
     if face_feature is None:
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにし、画面から離れて首元が映るようにしてください。")
     if head_feature is None:
@@ -113,14 +134,17 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
     
     # print(f"neck angle estimate start: {datetime.now()}")
     height, width, _channel = img.shape
-    neck_angle = await estimate_from_features({
-        **face_feature,
-        **head_feature,
-        **orientations,
-        "neck_to_nose_standard": guest_neck_to_nose_standard,
-        "image_width": width,
-        "image_height": height,
-    })
+    neck_angle = await estimate_from_features(
+        {
+            **face_feature,
+            **head_feature,
+            **orientations,
+            "neck_to_nose_standard": guest_neck_to_nose_standard,
+            "image_width": width,
+            "image_height": height,
+        },
+        request_id
+    )
     # print(f"neck angle estimate finish: {datetime.now()}")
     return crud.create_posture(db, PostureCreate(
         **face_feature, **head_feature, **orientations,
@@ -128,7 +152,15 @@ async def estimate_posture(file: UploadFile = File(...), sensors: str = Form(...
 
 
 @posture.post("/estimate/feature", response_model=Posture, responses=error_responses([UnauthorizedException, BadRequestException, NotFoundException]))
-async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...), app_id: str = Depends(require_app_id), db: Session = Depends(get_db), user: User = Depends(login_auth)):
+async def estimate_feature(
+    request: Request,
+    file: UploadFile = File(...),
+    sensors: str = Form(...),
+    app_id: str = Depends(require_app_id),
+    db: Session = Depends(get_db),
+    user: User = Depends(login_auth),
+    request_id: str = Depends(get_request_id)
+):
     try:
         sensors_json = json.loads(sensors)
         orientations = PostureOnlySensor(**sensors_json).model_dump()
@@ -137,12 +169,13 @@ async def estimate_feature(file: UploadFile = File(...), sensors: str = Form(...
     except ValidationError:
         raise BadRequestException("センサの値が無効です")
     
+    print(f"[{request_id}] estimate_feature called: {datetime.now().strftime(timestamp_format)}")
     file_path = save_file(file.file, image_dir,
                           f"{user.id}/original", file.filename)
     if file_path is None:
         raise BadRequestException("Failed to upload file")
     img = cv2.imread(file_path)
-    face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename)
+    face_feature, head_feature = await estimate_feature_from_image(img, user.id, file.filename, request_id)
     if face_feature is None:
         raise BadRequestException("顔が認識できませんでした。\n顔が隠れないようにし、画面から離れて首元が映るようにしてください。")
     if head_feature is None:
