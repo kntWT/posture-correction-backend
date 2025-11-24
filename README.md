@@ -53,12 +53,11 @@ Pulling this during frontend development allows for type-safe API calls.
 
 # Usage
 
-- Please log in at [App Registration](https://vps8.nkmr.io/posture-correction-app-request), select the server to use, and create a project.
-  - Note the `appId` displayed after creation and include it in the Header when making API requests.
+- Create App-ID per application
+  - You can create an App-ID by operating db directory or using simple application for that ([App Request](https://github.com/kntwt/posture-correction-app-request))
 - Connect to the server (or local machine) via VPN using [Tailscale](https://tailscale.com/) or similar.
 - The API can be used by proxying on the HTTP server of the destination and connecting to `<Destination IP>:3330/`.
 - Please refer to [API Configuration](#api) and call the API appropriately (pay attention to SSL and CORS).
-- Note that Docker may go down if the connection destination (the host machine running this backend) is not operated for a long time.
 
 # Setup
 
