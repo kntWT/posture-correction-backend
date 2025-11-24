@@ -1,0 +1,14 @@
+This project includes components from:
+
+1. OpenPose
+   Copyright (c) Carnegie Mellon University
+   License: Non-commercial. Commercial use prohibited without a separate license.
+   https://github.com/CMU-Perceptual-Computing-Lab/openpose
+
+2. 6DRepNet
+   MIT License
+   https://github.com/DederickHuang/6DRepNet
+
+3. PyTorch
+   BSD-style License
+   https://pytorch.org/

@@ -1,0 +1,12 @@
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
+
+This means you are free to use, modify, and distribute this code for research and non-commercial purposes only.
+Commercial use is prohibited unless you obtain a separate commercial license from Carnegie Mellon University (CMU) for OpenPose.
+
+This package uses the following third-party software:
+
+- OpenPose (Carnegie Mellon University): Non-commercial license. Commercial use requires a separate agreement with CMU.
+- 6DRepNet (MIT License)
+- PyTorch (BSD-style License)
+
+Users of this package must comply with all third-party licenses.
