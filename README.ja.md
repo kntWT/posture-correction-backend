@@ -83,3 +83,24 @@ cp .env.sample .env
 
 - JWT の署名に公開鍵と秘密鍵を利用しています。`EdDSA`形式で暗号化した鍵を`api/configs/keys`に配置してください（`secret_key`、`publick_key.pub`）
 - Cookie に署名する key は環境変数で変更できます
+
+# 引用
+
+本リポジトリを参照して論文を発表する場合は，可能な限り以下を引用してください．
+
+```bibtex
+@inproceedings{10.1145/3764687.3764720,
+author = {Watanabe, Kento and Nakamura, Satoshi},
+title = {Can We Prevent "Text Neck" Using Only a Smartphone? Real-Time Neck Angle Estimation and a Serious Game as a Case Study},
+year = {2025},
+isbn = {9798400720161},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3764687.3764720},
+doi = {10.1145/3764687.3764720},
+booktitle = {Proceedings of the 37th Australian Conference on Human-Computer Interaction},
+pages = {356–370},
+numpages = {15},
+series = {OzCHI '25}
+}
+```
