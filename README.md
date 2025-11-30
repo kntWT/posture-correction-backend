@@ -82,3 +82,26 @@ cp .env.sample .env
 
 - Public and private keys are used for JWT signing. Please place the keys encrypted in `EdDSA` format in `api/configs/keys` (`secret_key`, `publick_key.pub`).
 - The key used to sign the Cookie can be changed via environment variables.
+
+
+# Citing
+
+If you find our work useful, please cite it as follows:
+
+```bibtex
+@inproceedings{10.1145/3764687.3764720,
+author = {Watanabe, Kento and Nakamura, Satoshi},
+title = {Can We Prevent "Text Neck" Using Only a Smartphone? Real-Time Neck Angle Estimation and a Serious Game as a Case Study},
+year = {2025},
+isbn = {9798400720161},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3764687.3764720},
+doi = {10.1145/3764687.3764720},
+booktitle = {Proceedings of the 37th Australian Conference on Human-Computer Interaction},
+pages = {356–370},
+numpages = {15},
+series = {OzCHI '25}
+}
+```
+
